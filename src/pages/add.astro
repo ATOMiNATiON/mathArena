@@ -1,0 +1,28 @@
+---
+import '../styles/styles.css';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Math Arena</title>
+	</head>
+	<body>
+        <h1>Addition</h1>
+	</body>
+	<input
+		type="number"
+		class="center-block"
+		style = "width: 300px; height: 50px; font-size:25px"
+		size = "50px"
+		required
+		min="-10000"
+		max="10000"
+		name="answer"
+		id="answer"
+		placeholder="Enter your answer..."
+	/>
+</html>
