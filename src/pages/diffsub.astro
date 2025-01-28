@@ -1,5 +1,6 @@
 ---
 import '../styles/styles.css';
+import Button from '../components/Button.astro';
 ---
 
 <html lang="en">
@@ -11,7 +12,7 @@ import '../styles/styles.css';
 		<title>Math Arena</title>
 	</head>
 	<body>
-        <h1>Multiplication</h1>
+        <h1>Subtraction</h1>
 	</body>
 	<input
 		type="number"
@@ -25,4 +26,22 @@ import '../styles/styles.css';
 		id="answer"
 		placeholder="Enter your answer..."
 	/>
+	<div class="nextback">
+		<Button 
+			size="lg"
+			backgroundColor="#6089B3"
+			borderColor="transparent"
+			onClick="alert('Back')"
+		>
+		  Back
+		</Button>
+		<Button 
+			size="lg"
+			backgroundColor="#6089B3"
+			borderColor="transparent"
+			onClick="alert('Next')"
+		>
+		  Next
+		</Button>
+	</div>
 </html>
