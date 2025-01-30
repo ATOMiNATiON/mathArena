@@ -1,0 +1,156 @@
+---
+import NumberInput from '../components/NumberInput.astro';
+import Button from '../components/Button.astro';
+import '../styles/styles.css';
+
+const colors = [ // dumb colors for now
+  "#2baced", // default blue
+  "#FF0000", //red
+  "#FFA500", // Orange
+  "#EEEE00", // Yellow
+  "#008000", // Green
+  "#800080", // Purple
+  "#FFC0CB", // Pink
+  "#000000", //Black
+  "#FF00FF", // Magenta
+  "#00FFFF", // Cyan
+];
+---
+
+<div class="settings-container">
+  <div class="settings-form">
+    <label for="email-input">Email Address:</label>
+    <input type="email" id="email-input" placeholder="Enter your email" />
+    <button class="submit-button">Reset Password</button>
+  </div>
+
+  
+  <button class="theme-button" id="choose-theme-btn">
+    Choose Theme
+  </button>
+
+  
+  <div class="theme-popup" id="theme-popup">
+    <div class="color-picker">
+      {colors.map((color) => (
+        <button
+          style={{ backgroundColor: color }} // makes buttons colored
+    // can add action here
+          class="color-button"
+        ></button>
+      ))}
+    </div>
+  </div>
+</div>
+
+
+<Button 
+  id="backButton" 
+  size="lg"
+  backgroundColor="#4ea7f5"
+  textColor=white
+  borderColor="transparent"
+  href="/"
+>
+  Back
+</Button>
+
+<style>
+  .settings-container {
+    padding: 2rem;
+    max-width: 600px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .submit-button {
+    background-color: skyblue;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+
+  .submit-button:hover {
+    background-color: #1d99db;
+  }
+
+  .theme-button {
+    background-color: #1cb0ff;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+
+  .theme-button:hover {
+    background-color: #1cb0ff;
+    border: 2px solid gray;
+  }
+
+  .theme-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20vw;
+    height: 20vh; 
+    background-color: white;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .theme-popup.show {
+    display: block;
+  }
+
+  .color-picker {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columns */
+    grid-template-rows: repeat(2, 1fr); /* 2 rows */
+    gap: 0.5rem;
+    height: 100%;
+  }
+
+  .color-button {
+    width: 100%;
+    height: 80%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+</style>
+
+<script>
+
+  const chooseThemeButton = document.getElementById("choose-theme-btn");
+  const themePopup = document.getElementById("theme-popup");
+
+  // pops up theme thing
+  chooseThemeButton.addEventListener("click", () => {
+    themePopup.classList.add("show");
+  });
+
+  // closes if outside clicked
+  document.addEventListener("click", (e) => {
+    if (!themePopup.contains(e.target) && !chooseThemeButton.contains(e.target)) {
+      themePopup.classList.remove("show");
+    }
+  });
+</script>
