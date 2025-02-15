@@ -1,0 +1,75 @@
+---
+import '../styles/styles.css';
+import Button from '../components/Button.astro';
+---
+
+<head>
+  <title>Previous Problem</title>
+</head>
+
+<body>
+  <div class="previous-problem-container">
+    <h1 id="title">Previous</h1>
+    <div id="problemEntries"></div>
+    <div id="correctResult"></div>
+
+  </div>
+  <Button
+      id="backButton"
+      size="lg"
+      backgroundColor="#4ea7f5"
+      textColor="white"
+      borderColor="transparent"
+    >
+      Back
+    </Button>
+
+    <Button
+      id="toggleResultButton"
+      size="lg"
+      backgroundColor="#4ea7f5"
+      textColor="white"
+      borderColor="transparent"
+    >
+      Show Answer
+    </Button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const problemEntries = JSON.parse(localStorage.getItem('previousEntries') || "This Shouldn't Be Possible");
+    const correctResult = localStorage.getItem('previousResult');
+    const previousURL = localStorage.getItem('previousURL');
+
+    const problemEntriesDiv = document.getElementById('problemEntries');
+    const correctResultDiv = document.getElementById('correctResult');
+    const backButton = document.getElementById('backButton');
+    const toggleResultButton = document.getElementById('toggleResultButton');
+
+    if (problemEntriesDiv && correctResultDiv) {
+      problemEntriesDiv.innerHTML = `${problemEntries.map((entry: any) => `(${entry})`).join(' + ')}`;
+      correctResultDiv.style.display = 'none';
+      correctResultDiv.innerHTML = `<strong>= </strong>${correctResult}`;
+    }
+
+    if (toggleResultButton) {
+        toggleResultButton.addEventListener('click', () => {
+          if (correctResultDiv) {
+            if (correctResultDiv.style.display === 'none') {
+              correctResultDiv.style.display = 'block';
+              toggleResultButton.textContent = 'Hide Answer';
+            } else {
+              correctResultDiv.style.display = 'none';
+              toggleResultButton.textContent = 'Show Answer';
+            }
+          }
+        });
+      }
+
+    if (backButton && previousURL) {
+        backButton.addEventListener('click', () => {
+          window.location.href = previousURL;
+    });
+   } 
+  });
+  </script>
+</body>
