@@ -5,6 +5,9 @@ import SideMenu from '../components/SideMenu.astro';
 
 import { actions } from 'astro:actions';
 const time = await Astro.callAction(actions.serverTime, undefined);
+
+import { app } from '../lib/firebase.ts';
+console.log("Firebase App:", app); // debug use
 ---
 
 <html lang="en">
