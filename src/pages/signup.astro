@@ -37,6 +37,10 @@ import '../styles/styles.css';
   </div>
 
   <script>
+    import { auth } from '../lib/firebase';
+    import { createUserWithEmailAndPassword } from 'firebase/auth';
+    import type { AuthError } from 'firebase/auth';
+
     document.addEventListener("DOMContentLoaded", () => {
       const signupForm = document.getElementById("signup-form") as HTMLFormElement | null;
       const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement | null;
@@ -56,8 +60,17 @@ import '../styles/styles.css';
         const email = emailInput.value;
         const password = passwordInput.value;
 
-        console.log(name, email, password);
-
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          window.location.href = '/'; // Redirect to the main page after successful signup
+        } catch (error) {
+          const firebaseError = error as AuthError;
+          if (firebaseError.code === 'auth/email-already-in-use') {
+            errorMessageEl.textContent = 'Error: Email already in use. Please log in.';
+          } else {
+            errorMessageEl.textContent = `Error: ${firebaseError.message}`;
+          }
+        }
       });
     });
   </script>  
