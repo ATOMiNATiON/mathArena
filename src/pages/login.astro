@@ -32,6 +32,10 @@ import '../styles/styles.css';
   </div>
 
   <script>
+    import { auth } from '../lib/firebase';
+    import { signInWithEmailAndPassword } from 'firebase/auth';
+    import type { AuthError } from 'firebase/auth';
+    
     document.addEventListener("DOMContentLoaded", () => {
       const loginForm = document.getElementById("login-form") as HTMLFormElement | null;
       const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement | null;
@@ -49,8 +53,16 @@ import '../styles/styles.css';
         const email = emailInput.value;
         const password = passwordInput.value;
 
-        console.log(email, password); // For debug, and later for DB
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          window.location.href = '/'; // Redirect to the main page after successful login
+        } catch (error) {
+          const firebaseError = error as AuthError;
+      errorMessageEl.textContent = firebaseError.code ? 
+        `Error: ${firebaseError.code.replace('auth/', '')}` : 
+        'An error occurred during login';
+        }
       });
     });
   </script>
-  </body>
+</body>
