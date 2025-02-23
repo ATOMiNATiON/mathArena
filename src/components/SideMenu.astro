@@ -9,57 +9,57 @@
 </div>
 
 <script>
-  import { auth } from '../lib/firebase';
-  import { signOut, onAuthStateChanged } from 'firebase/auth';
+  import { app } from "../lib/firebase_client.ts";
+  import {signOut, onAuthStateChanged, getAuth} from 'firebase/auth';
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const menuButton = document.getElementById("menu-button")!;
-    const sideMenu = document.getElementById("side-menu")!;
-    const userEmailElement = document.getElementById("user-email")!;
+  const auth = getAuth(app);
 
-    // Listen for auth state changes to update the email display
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.email) {
-        userEmailElement.textContent = user.email;
-      } else {
-        userEmailElement.textContent = "[Display User Email]";
-      }
-    });
+  const menuButton = document.getElementById("menu-button")!;
+  const sideMenu = document.getElementById("side-menu")!;
+  const userEmailElement = document.getElementById("user-email")!;
 
-    menuButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      sideMenu.classList.toggle("open");
+  // Listen for auth state changes to update the email display
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email) {
+      userEmailElement.textContent = user.email;
+    } else {
+      userEmailElement.textContent = "[Display User Email]";
+    }
+  });
 
-      if (sideMenu.classList.contains("open")) {
-        menuButton.classList.add("hidden");
-      }
-    });
+  menuButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    sideMenu.classList.toggle("open");
 
-    document.addEventListener("click", (event) => {
-      let target: HTMLElement | null = event.target as (HTMLElement | null)
-      if (target && !target.closest(".side-menu") && !target.closest(".menu-button")) {
-        sideMenu.classList.remove("open");
-        menuButton.classList.remove("hidden");
-      }
-    });
+    if (sideMenu.classList.contains("open")) {
+      menuButton.classList.add("hidden");
+    }
+  });
 
-    sideMenu.querySelector(".progress-button")!.addEventListener("click", () => {
-      alert("Go to progress page");
-    });
+  document.addEventListener("click", (event) => {
+    let target: HTMLElement | null = event.target as (HTMLElement | null)
+    if (target && !target.closest(".side-menu") && !target.closest(".menu-button")) {
+      sideMenu.classList.remove("open");
+      menuButton.classList.remove("hidden");
+    }
+  });
 
-    sideMenu.querySelector(".account-settings")!.addEventListener("click", () => {
-      alert("Go to user's account settings");
-    });
+  sideMenu.querySelector(".progress-button")!.addEventListener("click", () => {
+    alert("Go to progress page");
+  });
 
-    sideMenu.querySelector(".logout")!.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        // The onAuthStateChanged listener will handle UI updates
-      } catch (error) {
-        console.error("Error signing out:", error);
-        alert("Error signing out. Please try again.");
-      }
-    });
+  sideMenu.querySelector(".account-settings")!.addEventListener("click", () => {
+    alert("Go to user's account settings");
+  });
+
+  sideMenu.querySelector(".logout")!.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      // The onAuthStateChanged listener will handle UI updates
+    } catch (error) {
+      console.error("Error signing out:", error);
+      alert("Error signing out. Please try again.");
+    }
   });
 </script>
 

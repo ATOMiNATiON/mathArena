@@ -1,7 +1,10 @@
 ---
+export const prerender = false;
+
 import '../styles/styles.css';
-import { app } from "../lib/server";
 import { getAuth } from "firebase-admin/auth";
+import {app} from "../lib/firebase_server.ts";
+import {actions} from "astro:actions";
 
 /* Check if the user is authenticated */
 const auth = getAuth(app);
@@ -10,12 +13,10 @@ if (Astro.cookies.has("__session")) {
   if (sessionCookie) {
     const decodedCookie = await auth.verifySessionCookie(sessionCookie);
     if (decodedCookie) {
-      return Astro.redirect("/dashboard");
+      return Astro.redirect("/");
     }
   }
 }
-
-export const prerender = false
 ---
 
 <head>
@@ -29,7 +30,7 @@ export const prerender = false
     <h1>Login to Math Arena</h1>
     <p id="error-message" class="error-message"></p>
 
-    <form id="login-form" action="/api/auth/signin" method="post">
+    <form id="login-form">
       <div class="input-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required />
@@ -53,61 +54,33 @@ export const prerender = false
       inMemoryPersistence,
       signInWithEmailAndPassword,
     } from "firebase/auth";
-    import { app } from "../lib/firebase";
+    import { app } from "../lib/firebase_client.ts";
     import type { AuthError } from 'firebase/auth';
     import { actions } from 'astro:actions';
 
-    async () => {
-      const { data, error } = await actions.myAction({ /* ... */ });
-    }
+    const auth = getAuth(app);
+    // This will prevent the browser from storing session data
+    auth.setPersistence(inMemoryPersistence);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const auth = getAuth(app);
-      // This will prevent the browser from storing session data
-      auth.setPersistence(inMemoryPersistence);
+    const loginForm = document.getElementById("login-form") as HTMLFormElement;
+    const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
 
-      const loginForm = document.getElementById("login-form") as HTMLFormElement;
-      const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+        
+      const formData = new FormData(loginForm);
+      const email = formData.get("email")?.toString();
+      const password = formData.get("password")?.toString();
 
-      if (!loginForm || !errorMessageEl) {
-        console.error("Form elements not found");
+      if (!email || !password) {
+        errorMessageEl.textContent = "Please fill in all fields";
         return;
       }
 
-      loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        
-        const formData = new FormData(loginForm);
-        const email = formData.get("email")?.toString();
-        const password = formData.get("password")?.toString();
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
 
-        if (!email || !password) {
-          errorMessageEl.textContent = "Please fill in all fields";
-          return;
-        }
-
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const idToken = await userCredential.user.getIdToken();
-          
-          // const response = await fetch("/api/auth/signin", {
-          //   method: "POST",
-          //   headers: {
-          //     Authorization: `Bearer ${idToken}`,
-          //   },
-          // });
-
-
-          if (response.redirected) {
-            window.location.assign(response.url);
-          }
-        } catch (error) {
-          const firebaseError = error as AuthError;
-          errorMessageEl.textContent = firebaseError.code ? 
-            `Error: ${firebaseError.code.replace('auth/', '')}` : 
-            'An error occurred during login';
-        }
-      });
+      await actions.login({ idToken });
     });
   </script>
 </body>

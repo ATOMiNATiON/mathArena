@@ -1,5 +1,27 @@
 ---
+export const prerender = false;
+
 import '../styles/styles.css';
+import { actions } from 'astro:actions';
+import { getAuth } from 'firebase-admin/auth';
+import { app } from "../lib/firebase_server.ts";
+
+/* Check if the user is authenticated */
+const auth = getAuth(app);
+if (Astro.cookies.has("__session")) {
+  const sessionCookie = Astro.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+    if (decodedCookie) {
+      return Astro.redirect("/");
+    }
+  }
+}
+
+const result = Astro.getActionResult(actions.register);
+if (result && !result.error) {
+  return Astro.redirect(`/login`);
+}
 ---
 
 <head>
@@ -13,7 +35,7 @@ import '../styles/styles.css';
     <h1>Create an Account</h1>
     <p id="error-message" class="error-message"></p>
 
-    <form id="signup-form" action="/api/auth/register" method="post">
+    <form id="signup-form" action={actions.register} method="post">
       <div class="input-group">
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" required />
@@ -35,43 +57,4 @@ import '../styles/styles.css';
     <p>Already have an account? <a href="/login">Log in</a></p>
     <a href="/"> Continue without an account </a>
   </div>
-
-  <script>
-    import { auth } from '../lib/firebase';
-    import { createUserWithEmailAndPassword } from 'firebase/auth';
-    import type { AuthError } from 'firebase/auth';
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const signupForm = document.getElementById("signup-form") as HTMLFormElement | null;
-      const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement | null;
-      const nameInput = document.getElementById("name") as HTMLInputElement | null;
-      const emailInput = document.getElementById("email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("password") as HTMLInputElement | null;
-
-      if (!signupForm || !errorMessageEl || !nameInput || !emailInput || !passwordInput) {
-        console.error("Form elements not found");
-        return;
-      }
-
-      signupForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          window.location.href = '/'; // Redirect to the main page after successful signup
-        } catch (error) {
-          const firebaseError = error as AuthError;
-          if (firebaseError.code === 'auth/email-already-in-use') {
-            errorMessageEl.textContent = 'Error: Email already in use. Please log in.';
-          } else {
-            errorMessageEl.textContent = `Error: ${firebaseError.message}`;
-          }
-        }
-      });
-    });
-  </script>  
 </body>

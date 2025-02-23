@@ -4,10 +4,6 @@ import Button from '../components/Button.astro';
 import SideMenu from '../components/SideMenu.astro';
 
 import { actions } from 'astro:actions';
-const time = await Astro.callAction(actions.serverTime, undefined);
-
-import { app } from '../lib/firebase.ts';
-console.log("Firebase App:", app); // debug use
 ---
 
 <html lang="en">
@@ -39,7 +35,7 @@ console.log("Firebase App:", app); // debug use
     </style>
   </head>
   <body>
-    <h1 id="title">Math Arena {time.data}</h1>
+    <h1 id="title">Math Arena</h1>
     
     <div id="auth-container">
       <a href="/login" id="sign-in-button">
@@ -102,8 +98,10 @@ console.log("Firebase App:", app); // debug use
     </div> 
 
     <script>
-      import { auth } from '../lib/firebase';
-      import { onAuthStateChanged } from 'firebase/auth';
+      import {getAuth, onAuthStateChanged} from 'firebase/auth';
+      import {app} from "../lib/firebase_client.ts";
+
+      const auth = getAuth(app)
 
       document.addEventListener("DOMContentLoaded", () => {
         const signInButton = document.getElementById("sign-in-button");

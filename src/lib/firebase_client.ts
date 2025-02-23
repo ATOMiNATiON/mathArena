@@ -19,7 +19,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 // analytics only initializes in the browser
 let analytics;
@@ -30,4 +29,4 @@ if (typeof window !== "undefined") {
 // test to make sure it can get key
 console.log("Firebase API Key:", import.meta.env.PUBLIC_FIREBASE_API_KEY);
 
-export { app, analytics, auth};
+export { app, analytics };

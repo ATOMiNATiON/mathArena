@@ -1,38 +1,43 @@
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { getAuth } from "firebase-admin/auth";
-import { app } from "../lib/server";
+import { app } from "../lib/firebase_server.ts";
+
+const sessionTokenTTL =
+    1000 * // s → ms
+    60 * // m → s
+    60 * // h → m
+    24 * // d → h
+    7; // 7 days
 
 export const server = {
-    // remove this when we add real actions!
-    serverTime: defineAction({
-        handler: async () => {
-            let now = new Date()
-            return now.toISOString()
-        }
-    }),
     register: defineAction({
         input: z.object({
             email: z.string(),
             password: z.string(),
-            name: z.string()
+            name: z.string(),
+            idToken: z.string()
         }),
         handler: async ({ email, password, name }) => {
-            email = email.toString();
-            password = password.toString();
-            name = name.toString();
             const auth = getAuth(app);
-            try {
-                await auth.createUser({
+            await auth.createUser({
                     email,
                     password,
                     displayName: name,
-                });
-            } catch (error: any) {
-                return new Response(
-                    "Something went wrong",
-                    { status: 400 }
-                );
-            }
-        }})
+            });
+        }
+    }),
+    login: defineAction({
+        input: z.object({
+            idToken: z.string(),
+        }),
+        handler: async ({ idToken }, ctx) => {
+            const auth = getAuth(app);
+            await auth.verifyIdToken(idToken);
+
+            const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: sessionTokenTTL })
+
+            ctx.cookies.set("__session", sessionCookie, { path: "/" });
+        }
+    })
 }
