@@ -1,52 +1,66 @@
 ---
 ---
 
-
 <div id="side-menu">
-    <div class="menu-option email-box">[Display User Email]</div>
+    <div class="menu-option email-box" id="user-email">[Display User Email]</div>
     <div class="menu-option progress-button">Progress</div>
     <div class="menu-option account-settings">Account Settings</div>
     <div class="menu-option logout">Logout</div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const menuButton = document.getElementById("menu-button")!;
-      const sideMenu = document.getElementById("side-menu")!;
-  
-     
-      menuButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        sideMenu.classList.toggle("open");
-  
-   
-        if (sideMenu.classList.contains("open")) {
-          menuButton.classList.add("hidden");
-        }
-      });
-  
-      document.addEventListener("click", (event) => {
-        let target: HTMLElement | null = event.target as (HTMLElement | null)
-        if (target && !target.closest(".side-menu") && !target.closest(".menu-button")) {
-          sideMenu.classList.remove("open");
-          menuButton.classList.remove("hidden");
-        }
-      });
-  
-      sideMenu.querySelector(".progress-button")!.addEventListener("click", () => {
-        alert("Go to progress page");
-      });
+  import { auth } from '../lib/firebase';
+  import { signOut, onAuthStateChanged } from 'firebase/auth';
 
-      sideMenu.querySelector(".account-settings")!.addEventListener("click", () => {
-        alert("Go to user's account settings");
-      });
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuButton = document.getElementById("menu-button")!;
+    const sideMenu = document.getElementById("side-menu")!;
+    const userEmailElement = document.getElementById("user-email")!;
 
-      sideMenu.querySelector(".logout")!.addEventListener("click", () => {
-        alert("Log User Out");
-      });
-
-      
+    // Listen for auth state changes to update the email display
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email) {
+        userEmailElement.textContent = user.email;
+      } else {
+        userEmailElement.textContent = "[Display User Email]";
+      }
     });
+
+    menuButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      sideMenu.classList.toggle("open");
+
+      if (sideMenu.classList.contains("open")) {
+        menuButton.classList.add("hidden");
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      let target: HTMLElement | null = event.target as (HTMLElement | null)
+      if (target && !target.closest(".side-menu") && !target.closest(".menu-button")) {
+        sideMenu.classList.remove("open");
+        menuButton.classList.remove("hidden");
+      }
+    });
+
+    sideMenu.querySelector(".progress-button")!.addEventListener("click", () => {
+      alert("Go to progress page");
+    });
+
+    sideMenu.querySelector(".account-settings")!.addEventListener("click", () => {
+      alert("Go to user's account settings");
+    });
+
+    sideMenu.querySelector(".logout")!.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        // The onAuthStateChanged listener will handle UI updates
+      } catch (error) {
+        console.error("Error signing out:", error);
+        alert("Error signing out. Please try again.");
+      }
+    });
+  });
 </script>
 
 <style>
