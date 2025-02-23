@@ -4,7 +4,6 @@ import Button from '../components/Button.astro';
 import SideMenu from '../components/SideMenu.astro';
 
 import { actions } from 'astro:actions';
-const time = await Astro.callAction(actions.serverTime, undefined);
 ---
 
 <html lang="en">
@@ -14,12 +13,39 @@ const time = await Astro.callAction(actions.serverTime, undefined);
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Math Arena</title>
+    <style>
+      /* Styling for sign-in button */
+      #auth-container {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      #sign-in-button {
+        background-color: #4ea7f5;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #side-menu-container.hidden {
+        display: none;
+      }
+    </style>
   </head>
   <body>
-
-    <h1 id="title">Math Arena {time.data}</h1>
-    <SideMenu></SideMenu>
+    <h1 id="title">Math Arena</h1>
     
+    <div id="auth-container">
+      <a href="/login" id="sign-in-button">
+        <button>Sign In</button>
+      </a>
+      <div id="side-menu-container" class="hidden">
+        <SideMenu />
+      </div>
+    </div>
+
     <div class="gameSelectButtons">
         <Button 
             size="lg"
@@ -71,34 +97,27 @@ const time = await Astro.callAction(actions.serverTime, undefined);
       Score: 0
     </div> 
 
-    <script type="text/javascript">
-      
-      if (typeof window !== "undefined") {
-   
-        function getScore() {
-          return parseInt(localStorage.getItem("userScore") || "0", 10);
-        }
+    <script>
+      import {getAuth, onAuthStateChanged} from 'firebase/auth';
+      import {app} from "../lib/firebase_client.ts";
 
-        // updating from localstorage
-        function updateScore(change) {
-          const newScore = getScore() + change;
-          localStorage.setItem("userScore", newScore.toString());
+      const auth = getAuth(app)
 
-          // score update reflected in UI
-          const scoreBox = document.getElementById("score-box");
-          if (scoreBox) {
-            scoreBox.textContent = `Score: ${newScore}`;
-          }
-        }
+      document.addEventListener("DOMContentLoaded", () => {
+        const signInButton = document.getElementById("sign-in-button");
+        const sideMenuContainer = document.getElementById("side-menu-container");
 
-        // load scorebox
-        window.addEventListener("load", function() {
-          const scoreBox = document.getElementById("score-box");
-          if (scoreBox) {
-            scoreBox.textContent = `Score: ${getScore()}`; // set score whenever pages load
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            if (signInButton) signInButton.style.display = "none";
+            if (sideMenuContainer) sideMenuContainer.classList.remove("hidden");
+          } else {
+            if (signInButton) signInButton.style.display = "block";
+            if (sideMenuContainer) sideMenuContainer.classList.add("hidden");
           }
         });
-      }
+      });
     </script>
 
   </body>

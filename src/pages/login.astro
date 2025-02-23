@@ -1,5 +1,22 @@
 ---
+export const prerender = false;
+
 import '../styles/styles.css';
+import { getAuth } from "firebase-admin/auth";
+import {app} from "../lib/firebase_server.ts";
+import {actions} from "astro:actions";
+
+/* Check if the user is authenticated */
+const auth = getAuth(app);
+if (Astro.cookies.has("__session")) {
+  const sessionCookie = Astro.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+    if (decodedCookie) {
+      return Astro.redirect("/");
+    }
+  }
+}
 ---
 
 <head>
@@ -32,25 +49,38 @@ import '../styles/styles.css';
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginForm = document.getElementById("login-form") as HTMLFormElement | null;
-      const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement | null;
-      const emailInput = document.getElementById("email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+    import {
+      getAuth,
+      inMemoryPersistence,
+      signInWithEmailAndPassword,
+    } from "firebase/auth";
+    import { app } from "../lib/firebase_client.ts";
+    import type { AuthError } from 'firebase/auth';
+    import { actions } from 'astro:actions';
 
-      if (!loginForm || !errorMessageEl || !emailInput || !passwordInput) {
-        console.error("Form elements not found");
+    const auth = getAuth(app);
+    // This will prevent the browser from storing session data
+    auth.setPersistence(inMemoryPersistence);
+
+    const loginForm = document.getElementById("login-form") as HTMLFormElement;
+    const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+        
+      const formData = new FormData(loginForm);
+      const email = formData.get("email")?.toString();
+      const password = formData.get("password")?.toString();
+
+      if (!email || !password) {
+        errorMessageEl.textContent = "Please fill in all fields";
         return;
       }
 
-      loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
 
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        console.log(email, password); // For debug, and later for DB
-      });
+      await actions.login({ idToken });
     });
   </script>
-  </body>
+</body>
