@@ -1,5 +1,19 @@
 ---
 import '../styles/styles.css';
+import { app } from "../lib/server";
+import { getAuth } from "firebase-admin/auth";
+
+/* Check if the user is authenticated */
+const auth = getAuth(app);
+if (Astro.cookies.has("__session")) {
+  const sessionCookie = Astro.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+    if (decodedCookie) {
+      return Astro.redirect("/dashboard");
+    }
+  }
+}
 ---
 
 <head>
@@ -13,7 +27,7 @@ import '../styles/styles.css';
     <h1>Login to Math Arena</h1>
     <p id="error-message" class="error-message"></p>
 
-    <form id="login-form">
+    <form id="login-form" action="/api/auth/signin" method="post">
       <div class="input-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required />
@@ -32,35 +46,58 @@ import '../styles/styles.css';
   </div>
 
   <script>
-    import { auth } from '../lib/firebase';
-    import { signInWithEmailAndPassword } from 'firebase/auth';
+    import {
+      getAuth,
+      inMemoryPersistence,
+      signInWithEmailAndPassword,
+    } from "firebase/auth";
+    import { app } from "../lib/firebase";
     import type { AuthError } from 'firebase/auth';
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginForm = document.getElementById("login-form") as HTMLFormElement | null;
-      const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement | null;
-      const emailInput = document.getElementById("email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("password") as HTMLInputElement | null;
 
-      if (!loginForm || !errorMessageEl || !emailInput || !passwordInput) {
+    document.addEventListener("DOMContentLoaded", () => {
+      const auth = getAuth(app);
+      // This will prevent the browser from storing session data
+      auth.setPersistence(inMemoryPersistence);
+
+      const loginForm = document.getElementById("login-form") as HTMLFormElement;
+      const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
+
+      if (!loginForm || !errorMessageEl) {
         console.error("Form elements not found");
         return;
       }
 
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        
+        const formData = new FormData(loginForm);
+        const email = formData.get("email")?.toString();
+        const password = formData.get("password")?.toString();
 
-        const email = emailInput.value;
-        const password = passwordInput.value;
+        if (!email || !password) {
+          errorMessageEl.textContent = "Please fill in all fields";
+          return;
+        }
 
         try {
-          await signInWithEmailAndPassword(auth, email, password);
-          window.location.href = '/'; // Redirect to the main page after successful login
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const idToken = await userCredential.user.getIdToken();
+          
+          const response = await fetch("/api/auth/signin", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+            },
+          });
+
+          if (response.redirected) {
+            window.location.assign(response.url);
+          }
         } catch (error) {
           const firebaseError = error as AuthError;
-      errorMessageEl.textContent = firebaseError.code ? 
-        `Error: ${firebaseError.code.replace('auth/', '')}` : 
-        'An error occurred during login';
+          errorMessageEl.textContent = firebaseError.code ? 
+            `Error: ${firebaseError.code.replace('auth/', '')}` : 
+            'An error occurred during login';
         }
       });
     });

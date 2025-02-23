@@ -13,7 +13,7 @@ import '../styles/styles.css';
     <h1>Create an Account</h1>
     <p id="error-message" class="error-message"></p>
 
-    <form id="signup-form">
+    <form id="signup-form" action="/api/auth/register" method="post">
       <div class="input-group">
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" required />
