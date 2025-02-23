@@ -14,6 +14,8 @@ if (Astro.cookies.has("__session")) {
     }
   }
 }
+
+export const prerender = false
 ---
 
 <head>
@@ -53,6 +55,11 @@ if (Astro.cookies.has("__session")) {
     } from "firebase/auth";
     import { app } from "../lib/firebase";
     import type { AuthError } from 'firebase/auth';
+    import { actions } from 'astro:actions';
+
+    async () => {
+      const { data, error } = await actions.myAction({ /* ... */ });
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       const auth = getAuth(app);
@@ -83,12 +90,13 @@ if (Astro.cookies.has("__session")) {
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           const idToken = await userCredential.user.getIdToken();
           
-          const response = await fetch("/api/auth/signin", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-            },
-          });
+          // const response = await fetch("/api/auth/signin", {
+          //   method: "POST",
+          //   headers: {
+          //     Authorization: `Bearer ${idToken}`,
+          //   },
+          // });
+
 
           if (response.redirected) {
             window.location.assign(response.url);
