@@ -28,7 +28,13 @@ const stepSize = allowDecimals ? 0.01 : 1;
 ---
 
 <div class="input-container">
-  {label && <label class="input-label" data-size={size}>{label}</label>}
+  {
+    label && (
+      <label class="input-label" data-size={size}>
+        {label}
+      </label>
+    )
+  }
   <div class="input-wrapper">
     <input
       type="number"
@@ -78,7 +84,9 @@ const stepSize = allowDecimals ? 0.01 : 1;
   .input-field {
     border: 1px solid #ccc;
     border-radius: 5px;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
     width: 100%;
   }
 

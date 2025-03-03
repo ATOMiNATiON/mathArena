@@ -25,8 +25,8 @@
 </div>
 
 <script>
-import { getScoreLocalStorage } from "../lib/score_client.ts";
+  import { getScoreLocalStorage } from "../lib/score_client.ts";
 
-const scoreText = document.getElementById('score-text')!;
-scoreText.innerText = getScoreLocalStorage().toString();
+  const scoreText = document.getElementById("score-text")!;
+  scoreText.innerText = getScoreLocalStorage().toString();
 </script>

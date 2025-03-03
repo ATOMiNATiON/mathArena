@@ -4,7 +4,7 @@ name: Continuous Integration
 on:
   # Runs on pushes targeting the default branch
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,8 +25,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: latest
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
+      - name: Check code formatting
+        run: pnpm run check
       - name: Build frontend
         run: pnpm run build

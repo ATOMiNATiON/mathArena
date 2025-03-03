@@ -1,7 +1,7 @@
 ---
-import NumberInput from '../components/NumberInput.astro';
-import Button from '../components/Button.astro';
-import '../styles/styles.css';
+import NumberInput from "../components/NumberInput.astro";
+import Button from "../components/Button.astro";
+import "../styles/styles.css";
 ---
 
 <div class="form-container">
@@ -10,7 +10,7 @@ import '../styles/styles.css';
   <div class="input-row">
     <span class="input-label"># of digits (1st)</span>
     <number-input>
-      <NumberInput 
+      <NumberInput
         id="digitsInput1"
         placeholder="Enter a number from 1-6"
         size="lg"
@@ -24,7 +24,7 @@ import '../styles/styles.css';
   <div class="input-row">
     <span class="input-label"># of digits (2nd)</span>
     <number-input>
-      <NumberInput 
+      <NumberInput
         id="digitsInput2"
         placeholder="Enter a number from 1-6"
         size="lg"
@@ -37,7 +37,7 @@ import '../styles/styles.css';
   <div class="input-row">
     <span class="input-label">Speed (S)</span>
     <number-input>
-      <NumberInput 
+      <NumberInput
         id="speedInput"
         placeholder="Enter a number from 0.2-3"
         size="lg"
@@ -49,74 +49,82 @@ import '../styles/styles.css';
   </div>
 </div>
 
-<Button 
+<Button
   id="backButton"
   size="lg"
   backgroundColor="#4ea7f5"
-  textColor=white
+  textColor="white"
   borderColor="transparent"
   href="/"
 >
   Back
 </Button>
 
-<Button 
+<Button
   id="nextButton"
   size="lg"
   backgroundColor="#4ea7f5"
-  textColor=white
+  textColor="white"
   borderColor="transparent"
 >
   Next
 </Button>
 
 <script>
-  import { ArithmeticType } from '../lib/enums';
+  import { ArithmeticType } from "../lib/enums";
 
-  const digitsInput1 = document.querySelector('#digitsInput1') as HTMLInputElement;
-  const digitsInput2 = document.querySelector('#digitsInput2') as HTMLInputElement;
-  const speedInput = document.querySelector('#speedInput') as HTMLInputElement;
-  const nextButton = document.querySelector('#nextButton');
+  const digitsInput1 = document.querySelector(
+    "#digitsInput1",
+  ) as HTMLInputElement;
+  const digitsInput2 = document.querySelector(
+    "#digitsInput2",
+  ) as HTMLInputElement;
+  const speedInput = document.querySelector("#speedInput") as HTMLInputElement;
+  const nextButton = document.querySelector("#nextButton");
 
-  document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem("selectedTheme");
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("selectedTheme");
     if (savedTheme) {
       document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
     }
   });
 
-  nextButton?.addEventListener('click', () => {
+  nextButton?.addEventListener("click", () => {
     if (!digitsInput1 || !digitsInput2 || !speedInput) {
-        alert('Inputs not found in the DOM.');
-        return;
-      }
+      alert("Inputs not found in the DOM.");
+      return;
+    }
 
-      const digits1Val = digitsInput1.value;
-      const digits2Val = digitsInput2.value;
-      const speedVal = speedInput.value;
+    const digits1Val = digitsInput1.value;
+    const digits2Val = digitsInput2.value;
+    const speedVal = speedInput.value;
 
-      if (!digits1Val || !digits2Val || !speedVal) {
-        alert('Please fill in all fields.');
-        return;
-      } else if (Number(digits1Val) < 1 || Number(digits1Val) > 6) {
-        alert('Please enter a number between 1 and 6 for the first digits input.');
-        return;
-      } else if (Number(digits2Val) < 1 || Number(digits2Val) > 6) {
-        alert('Please enter a number between 1 and 6 for the second digits input.');
-        return;
-      } else if (Number(speedVal) < 0.2 || Number(speedVal) > 3) {
-        alert('Please enter a number between 0.2 and 3 for the speed input.');
-        return;
-      }
+    if (!digits1Val || !digits2Val || !speedVal) {
+      alert("Please fill in all fields.");
+      return;
+    } else if (Number(digits1Val) < 1 || Number(digits1Val) > 6) {
+      alert(
+        "Please enter a number between 1 and 6 for the first digits input.",
+      );
+      return;
+    } else if (Number(digits2Val) < 1 || Number(digits2Val) > 6) {
+      alert(
+        "Please enter a number between 1 and 6 for the second digits input.",
+      );
+      return;
+    } else if (Number(speedVal) < 0.2 || Number(speedVal) > 3) {
+      alert("Please enter a number between 0.2 and 3 for the speed input.");
+      return;
+    }
 
-      // Build the URL to /flash with query params
-      const url = new URL('/flash', window.location.origin);
-      url.searchParams.set('digits1', digits1Val);
-      url.searchParams.set('digits2', digits2Val);
-      url.searchParams.set('speed', speedVal);
-      url.searchParams.set('arithType', ArithmeticType.Multiplication.toString());
+    // Build the URL to /flash with query params
+    const url = new URL("/flash", window.location.origin);
+    url.searchParams.set("digits1", digits1Val);
+    url.searchParams.set("digits2", digits2Val);
+    url.searchParams.set("speed", speedVal);
+    url.searchParams.set("arithType", ArithmeticType.Multiplication.toString());
 
-      // Navigate
-      window.location.href = url.toString();
+    // Navigate
+    window.location.href = url.toString();
   });
 </script>

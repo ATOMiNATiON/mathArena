@@ -1,103 +1,48 @@
 ---
-export const prerender = false;
-
-import "../styles/styles.css";
+import MathPage from "../layouts/MathPage.astro";
 import Button from "../components/Button.astro";
-import SideMenu from "../components/SideMenu.astro";
-import { getAuth } from "firebase-admin/auth";
-import { app } from "../lib/firebase_server.ts";
-import ScoreBox from "../components/ScoreBox.astro";
-import SignInButton from "../components/SignInButton.astro";
-
-// Check for server-side authentication
-let isAuthenticated = false;
-const auth = getAuth(app);
-
-if (Astro.cookies.has("__session")) {
-  const sessionCookie = Astro.cookies.get("__session")?.value;
-  if (sessionCookie) {
-    try {
-      const decodedCookie = await auth.verifySessionCookie(sessionCookie);
-      isAuthenticated = true;
-    } catch (error) {
-      // Invalid session cookie
-      console.error("Session verification error:", error);
-    }
-  }
-}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Math Arena</title>
-    <style>
-      /* Styling for sign-in button */
-      #auth-container {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1 id="title">Math Arena</h1>
+<MathPage title="Math Arena">
+  <h1 id="title">Math Arena</h1>
 
-    <div id="auth-container">
-      {
-        !isAuthenticated ? (
-          <SignInButton/>
-        ) : null
-      }
+  <div class="gameSelectButtons">
+    <Button
+      size="lg"
+      backgroundColor="#4ea7f5"
+      textColor="white"
+      borderColor="transparent"
+      href="/add"
+    >
+      Add/Sub
+    </Button>
 
-      <div id="side-menu-container" class={isAuthenticated ? "" : "hidden"}>
-        {isAuthenticated ? <SideMenu /> : null}
-      </div>
-    </div>
+    <Button
+      size="lg"
+      backgroundColor="#4ea7f5"
+      textColor="white"
+      borderColor="transparent"
+      href="/mult"
+    >
+      Multiplication
+    </Button>
 
-    <div class="gameSelectButtons">
-      <Button
-        size="lg"
-        backgroundColor="#4ea7f5"
-        textColor="white"
-        borderColor="transparent"
-        href="/add"
-      >
-        Add/Sub
-      </Button>
+    <Button
+      size="lg"
+      backgroundColor="#4ea7f5"
+      textColor="white"
+      borderColor="transparent"
+      href="/div"
+    >
+      Division
+    </Button>
+  </div>
 
-      <Button
-        size="lg"
-        backgroundColor="#4ea7f5"
-        textColor="white"
-        borderColor="transparent"
-        href="/mult"
-      >
-        Multiplication
-      </Button>
-
-      <Button
-        size="lg"
-        backgroundColor="#4ea7f5"
-        textColor="white"
-        borderColor="transparent"
-        href="/div"
-      >
-        Division
-      </Button>
-    </div>
-
-    <ScoreBox server:defer />
-
-    <script>
-      // TODO: Load "defualt Blue" if user is not signed in, otherwise load in user's saved theme
-      const savedTheme = localStorage.getItem("selectedTheme");
-      if (savedTheme) {
-        document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
-      }
-    </script>
-  </body>
-</html>
+  <style>
+    #title {
+      text-align: center;
+      font-size: 4rem;
+      color: #3399ff;
+    }
+  </style>
+</MathPage>

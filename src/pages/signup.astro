@@ -1,8 +1,8 @@
 ---
 export const prerender = false;
 
-import '../styles/styles.css';
-import { getAuth } from 'firebase-admin/auth';
+import "../styles/styles.css";
+import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
 import { actions } from "astro:actions";
 
@@ -20,8 +20,8 @@ if (Astro.cookies.has("__session")) {
 ---
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up - Math Arena</title>
 </head>
 
@@ -58,18 +58,22 @@ if (Astro.cookies.has("__session")) {
       getAuth,
       inMemoryPersistence,
       createUserWithEmailAndPassword,
-      updateProfile
+      updateProfile,
     } from "firebase/auth";
     import { app } from "../lib/firebase_client.ts";
-    import type { AuthError } from 'firebase/auth';
-    import { actions } from 'astro:actions';
+    import type { AuthError } from "firebase/auth";
+    import { actions } from "astro:actions";
 
     const auth = getAuth(app);
     // This will prevent the browser from storing session data
     auth.setPersistence(inMemoryPersistence);
 
-    const signupForm = document.getElementById("signup-form") as HTMLFormElement;
-    const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
+    const signupForm = document.getElementById(
+      "signup-form",
+    ) as HTMLFormElement;
+    const errorMessageEl = document.getElementById(
+      "error-message",
+    ) as HTMLParagraphElement;
 
     signupForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -86,11 +90,15 @@ if (Astro.cookies.has("__session")) {
 
       try {
         // Create user in Firebase
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+
         // Update profile with display name
         await updateProfile(userCredential.user, {
-          displayName: name
+          displayName: name,
         });
 
         // Get ID token for server action
@@ -101,23 +109,26 @@ if (Astro.cookies.has("__session")) {
           email,
           password,
           name,
-          idToken
+          idToken,
         });
 
         // Redirect to login page after successful registration
         window.location.href = "/login";
       } catch (error) {
         const authError = error as AuthError;
-        
+
         // Handle specific Firebase Auth error codes
         if (authError.code === "auth/email-already-exists") {
-          errorMessageEl.textContent = "An account with this email already exists.";
+          errorMessageEl.textContent =
+            "An account with this email already exists.";
         } else if (authError.code === "auth/invalid-email") {
           errorMessageEl.textContent = "Please provide a valid email address.";
         } else if (authError.code === "auth/weak-password") {
-          errorMessageEl.textContent = "Password should be at least 6 characters.";
+          errorMessageEl.textContent =
+            "Password should be at least 6 characters.";
         } else {
-          errorMessageEl.textContent = authError.message || "Failed to create account. Please try again.";
+          errorMessageEl.textContent =
+            authError.message || "Failed to create account. Please try again.";
         }
       }
     });

@@ -1,8 +1,12 @@
 ---
-const correctCount = parseInt(localStorage.getItem('correctCount') || '0', 10);
-const incorrectCount = parseInt(localStorage.getItem('incorrectCount') || '0', 10);
+const correctCount = parseInt(localStorage.getItem("correctCount") || "0", 10);
+const incorrectCount = parseInt(
+  localStorage.getItem("incorrectCount") || "0",
+  10,
+);
 const totalAnswers = correctCount + incorrectCount;
-const accuracy = totalAnswers > 0 ? Math.round((correctCount / totalAnswers) * 100) : 0;
+const accuracy =
+  totalAnswers > 0 ? Math.round((correctCount / totalAnswers) * 100) : 0;
 ---
 
 <div
@@ -24,5 +28,5 @@ const accuracy = totalAnswers > 0 ? Math.round((correctCount / totalAnswers) * 1
         font-weight: bold;
         border-radius: 5px;"
 >
-        Accuracy: <span id="accuracy-text">{accuracy}%</span>
+  Accuracy: <span id="accuracy-text">{accuracy}%</span>
 </div>

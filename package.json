@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "format": "node --experimental-strip-types node_modules/prettier/bin/prettier.cjs . --write",
+    "check": "node --experimental-strip-types node_modules/prettier/bin/prettier.cjs . --check"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -15,11 +17,16 @@
     "astro": "^5.4.2",
     "firebase": "^11.4.0",
     "firebase-admin": "^13.2.0",
+    "modern-normalize": "^3.0.1",
     "typescript": "^5.8.2"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "protobufjs"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.5.2",
+    "prettier-plugin-astro": "^0.14.1"
   }
 }
