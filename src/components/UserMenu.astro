@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+---
+
+{
+  Astro.locals.decodedCookie ? (
+    <a>User Name Here</a>
+  ) : (
+    <a href="/login">Log In</a>
+  )
+}
