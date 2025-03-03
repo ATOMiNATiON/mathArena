@@ -1,0 +1,12 @@
+---
+interface Props {
+  back: string;
+}
+
+const { back } = Astro.props;
+---
+
+<!-- TODO replace with a heavy icon -->
+<a href={back}>← Back</a>
+
+<!-- TODO style so that the "Back" text disappears on small screens -->

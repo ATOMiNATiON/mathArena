@@ -19,4 +19,10 @@ if (Astro.cookies.has("__session")) {
 }
 ---
 
-{ loggedIn ? <BackgroundThemeServer session={session} /> : <BackgroundThemeClient /> }
+{
+  loggedIn ? (
+    <BackgroundThemeServer session={session} />
+  ) : (
+    <BackgroundThemeClient />
+  )
+}
