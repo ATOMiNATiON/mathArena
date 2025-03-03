@@ -1,0 +1,84 @@
+---
+import { ClientRouter } from "astro:transitions";
+import UserMenu from "../components/UserMenu.astro";
+import BackButton from "../components/BackButton.astro";
+
+interface Props {
+  title: string;
+  back?: string;
+  hideLogin?: boolean;
+  children?: any;
+}
+
+const {
+  // Title of the page
+  title,
+  // The page to return to on a back-press
+  back,
+  // Hide login link (i.e. if on login or sign up page)
+  hideLogin,
+} = Astro.props;
+
+// If we only have back button, take it to the left
+// If we only have the login button, take it to the right
+// If we have both or neither, evenly space
+let navJustify: string;
+if (!!back === hideLogin) {
+  navJustify = "space-between";
+} else if (back) {
+  navJustify = "flex-start";
+} else {
+  navJustify = "flex-end";
+}
+---
+
+<html lang="en" transition:name="root" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <nav style={{ "justify-content": navJustify }}>
+      {back && <BackButton back={back} />}
+      <!-- TODO make a real fallback component for the user menu -->
+      {
+        !hideLogin && (
+          <UserMenu server:defer>
+            <span slot="fallback">...</span>
+          </UserMenu>
+        )
+      }
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body><style>
+    @import "../styles/main.css";
+
+    body {
+      font-family: sans-serif;
+      background-image: url("/background.svg");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      height: 100vh;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: row;
+    }
+
+    main {
+      margin: auto;
+      max-width: 800px;
+
+      padding: 8px;
+    }
+  </style>
+</html>
