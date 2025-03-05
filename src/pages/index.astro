@@ -4,8 +4,6 @@ export const prerender = false;
 import "../styles/styles.css";
 import Button from "../components/Button.astro";
 import SideMenu from "../components/SideMenu.astro";
-
-import { actions } from "astro:actions";
 import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
 import ScoreBox from "../components/ScoreBox.astro";
@@ -105,21 +103,10 @@ if (Astro.cookies.has("__session")) {
       </Button>
     </div>
 
-    <!-- Just use ScoreBox Component -->
     <ScoreBox server:defer />
 
     <script>
-      import { getAuth, onAuthStateChanged } from "firebase/auth";
-      import { app } from "../lib/firebase_client.ts";
-      import { updateScore, getScore } from "../lib/score_client.ts";
-
-      const auth = getAuth(app);
-
-      const signInButton = document.getElementById("sign-in-button");
-      const sideMenuContainer = document.getElementById("side-menu-container");
-      const scoreBox = document.getElementById("score-box");
-
-      // Load saved theme from localStorage
+      // TODO: Load "defualt Blue" if user is not signed in, otherwise load in user's saved theme
       const savedTheme = localStorage.getItem("selectedTheme");
       if (savedTheme) {
         document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;

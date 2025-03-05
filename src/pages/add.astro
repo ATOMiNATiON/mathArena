@@ -42,7 +42,7 @@ import '../styles/styles.css';
         id="speedInput"
         placeholder="Enter a number from 0.2-3"
         size="lg"
-        minValue={0.02}
+        minValue={0.2}
         maxValue={3}
         allowDecimals={true}
       />
@@ -80,13 +80,11 @@ import '../styles/styles.css';
     const speedInput = document.querySelector('#speedInput') as HTMLInputElement;
 
     document.addEventListener('DOMContentLoaded', () => {
-
-const savedTheme = localStorage.getItem("selectedTheme");
-  if (savedTheme) {
-  document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+      document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
       }
-});
-
+    });
 
     nextBtn?.addEventListener('click', () => {
       if (!digitsInput || !numbersInput || !speedInput) {
@@ -99,7 +97,16 @@ const savedTheme = localStorage.getItem("selectedTheme");
       const speedVal = speedInput.value;
 
       if (!digitsVal || !numbersVal || !speedVal) {
-        alert('Please fill in all fields.');
+        alert("Please fill in all fields.");
+        return;
+      } else if (Number(digitsVal) < 1 || Number(digitsVal) > 6) {
+        alert("Please enter a number of digits between 1 and 6.");
+        return;
+      } else if (Number(numbersVal) < 1 || Number(numbersVal) > 15) {
+        alert("Please enter a number of numbers between 1 and 15.");
+        return;
+      } else if (Number(speedVal) < 0.2 || Number(speedVal) > 3) {
+        alert("Please enter a speed between 0.2 and 3.");
         return;
       }
 

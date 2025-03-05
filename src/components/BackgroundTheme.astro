@@ -1,0 +1,22 @@
+---
+import { getAuth } from "firebase-admin/auth";
+import { app } from "../lib/firebase_server.ts";
+import BackgroundThemeServer from "./BackgroundThemeServer.astro";
+import BackgroundThemeClient from "./BackgroundThemeClient.astro";
+
+let loggedIn = false;
+let session = undefined;
+const auth = getAuth(app);
+if (Astro.cookies.has("__session")) {
+  const sessionCookie = Astro.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    try {
+      const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+      session = sessionCookie;
+      loggedIn = true;
+    } catch {}
+  }
+}
+---
+
+{ loggedIn ? <BackgroundThemeServer session={session} /> : <BackgroundThemeClient /> }

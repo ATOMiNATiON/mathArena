@@ -12,7 +12,7 @@ import '../styles/styles.css';
     <number-input>
       <NumberInput 
         id="digitsInput1"
-        placeholder="Enter digits only"
+        placeholder="Enter a number from 1-6"
         size="lg"
         allowDecimals={false}
         minValue={1}
@@ -26,7 +26,7 @@ import '../styles/styles.css';
     <number-input>
       <NumberInput 
         id="digitsInput2"
-        placeholder="Enter digits only"
+        placeholder="Enter a number from 1-6"
         size="lg"
         minValue={1}
         maxValue={6}
@@ -39,9 +39,9 @@ import '../styles/styles.css';
     <number-input>
       <NumberInput 
         id="speedInput"
-        placeholder="Enter digits only"
+        placeholder="Enter a number from 0.2-3"
         size="lg"
-        minValue={0.02}
+        minValue={0.2}
         maxValue={3}
         allowDecimals={true}
       />
@@ -78,16 +78,12 @@ import '../styles/styles.css';
   const speedInput = document.querySelector('#speedInput') as HTMLInputElement;
   const nextButton = document.querySelector('#nextButton');
 
-
   document.addEventListener('DOMContentLoaded', () => {
-
-    const savedTheme = localStorage.getItem("selectedTheme");
-      if (savedTheme) {
+  const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
       document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
-          }
+    }
   });
-  
-
 
   nextButton?.addEventListener('click', () => {
     if (!digitsInput1 || !digitsInput2 || !speedInput) {
@@ -101,6 +97,18 @@ import '../styles/styles.css';
 
       if (!digits1Val || !digits2Val || !speedVal) {
         alert('Please fill in all fields.');
+        return;
+      } else if (digits1Val < digits2Val) {
+        alert("The first number of digits must be greater than the second number of digits.");
+        return;
+      } else if (Number(digits1Val) < 1 || Number(digits1Val) > 6) {
+        alert('Please enter a number between 1 and 6 for the first digits input.');
+        return;
+      } else if (Number(digits2Val) < 1 || Number(digits2Val) > 6) {
+        alert('Please enter a number between 1 and 6 for the second digits input.');
+        return;
+      } else if (Number(speedVal) < 0.2 || Number(speedVal) > 3) {
+        alert('Please enter a number between 0.2 and 3 for the speed input.');
         return;
       }
 

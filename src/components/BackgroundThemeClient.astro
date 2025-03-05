@@ -1,0 +1,100 @@
+---
+import {colors} from "../lib/colors";
+---
+
+<button class="theme-button" id="choose-theme-btn">
+    Choose Theme
+</button>
+ 
+<div class="theme-popup" id="theme-popup">
+    <div class="color-picker">
+        {colors.map(({ color, svgStroke }) => (
+        <button
+            style={{ backgroundColor: color }}
+            class="color-button"
+            data-color={svgStroke}
+        ></button>
+        ))}
+    </div>
+</div>
+
+<style>
+.theme-button {
+   background-color: skyblue;
+   color: white;
+   padding: 0.8rem;
+   border: none;
+   cursor: pointer;
+   border-radius: 5px;
+   font-size: 1rem;
+}
+
+.theme-button:hover {
+   background-color: #1d99db;
+}
+
+.theme-popup {
+   display: none;
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   width: 20vw;
+   height: 20vh;
+   background-color: white;
+   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+   padding: 1rem;
+   border-radius: 8px;
+   z-index: 100;
+}
+
+.theme-popup.show {
+   display: block;
+}
+
+.color-picker {
+   display: grid;
+   grid-template-columns: repeat(5, 1fr);
+   gap: 0.5rem;
+   height: 100%;
+}
+ 
+.color-button {
+   width: 100%;
+   height: 80%;
+   border: none;
+   cursor: pointer;
+   border-radius: 5px;
+ }
+</style>
+
+<script>
+    const chooseThemeButton = document.getElementById("choose-theme-btn")!;
+    const themePopup = document.getElementById("theme-popup")!;
+
+    chooseThemeButton.addEventListener("click", () => {
+        themePopup.classList.add("show");
+    })
+
+    document.addEventListener("click", (e) => {
+        if (!(themePopup.contains(e.target as HTMLButtonElement)) && !(chooseThemeButton.contains(e.target as HTMLButtonElement))) {
+            themePopup.classList.remove("show");
+        }
+    });
+
+   themePopup.addEventListener("click", (e) => {
+       const button = e.target as HTMLButtonElement;
+       if (button.classList.contains("color-button")) {
+           const color = button.getAttribute("data-color")!;
+
+           // Store selected theme in localStorage & update firebase
+           localStorage.setItem("selectedTheme", color);
+
+           // Update background
+           document.body.style.backgroundImage = `url('/background.svg?color=${color.slice(1)}')`;
+
+           // Close popup
+           themePopup.classList.remove("show");
+       }
+   });
+</script>
