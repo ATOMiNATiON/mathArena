@@ -52,6 +52,34 @@ if (Astro.cookies.has("__session")) {
       #side-menu-container.hidden {
         display: none;
       }
+      .achievements-container {
+        position: fixed;
+        bottom: 200px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+      .achievements-container :global(.button-base) {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      .achievements-container :global(.button-base:hover) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+      }
+      #title {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .gameSelectButtons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 2rem 0;
+      }
     </style>
   </head>
   <body>
@@ -100,6 +128,18 @@ if (Astro.cookies.has("__session")) {
         href="/div"
       >
         Division
+      </Button>
+    </div>
+
+    <div class="achievements-container">
+      <Button
+        size="lg"
+        backgroundColor="#f5a742"
+        textColor="white"
+        borderColor="transparent"
+        href="/achievements"
+      >
+        🏆 Achievements
       </Button>
     </div>
 

@@ -4,6 +4,7 @@ import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
 import { updateScoreServer, getScoreServer } from "../lib/score_server.ts";
 import { updateThemeServer, getThemeServer} from "../lib/background_server.ts";
+import { db } from "../lib/firebase_server.ts";
 
 const sessionTokenTTL =
     1000 * // s → ms
@@ -73,6 +74,55 @@ export const server = {
         handler: async (_, ctx) => {
             const session = ctx.cookies.get("__session")!
             return await getThemeServer(session.value)
+        }
+    }),
+    getStats: defineAction({
+        handler: async (_, ctx) => {
+            const session = ctx.cookies.get("__session")!;
+            const auth = getAuth(app);
+            try {
+                const decodedCookie = await auth.verifySessionCookie(session.value);
+                if (decodedCookie.uid) {
+                    const userDoc = await db.collection("(default)").doc(decodedCookie.uid).get();
+                    if (userDoc.exists) {
+                        return {
+                            streak: userDoc.get("currentStreak") || 0,
+                            sessionCorrect: userDoc.get("sessionCorrect") || 0,
+                            totalCorrect: userDoc.get("totalCorrect") || 0,
+                            accuracy: userDoc.get("accuracy") || 0,
+                            achievements: userDoc.get("achievements") || []
+                        };
+                    }
+                }
+            } catch {}
+            return null;
+        }
+    }),
+
+    updateStats: defineAction({
+        input: z.object({
+            streak: z.number(),
+            sessionCorrect: z.number(),
+            totalCorrect: z.number(),
+            accuracy: z.number(),
+            achievements: z.array(z.string()).optional()
+        }),
+        handler: async (stats, ctx) => {
+            const session = ctx.cookies.get("__session")!;
+            const auth = getAuth(app);
+            try {
+                const decodedCookie = await auth.verifySessionCookie(session.value);
+                if (decodedCookie.uid) {
+                    const updateData = {
+                        currentStreak: stats.streak,
+                        sessionCorrect: stats.sessionCorrect,
+                        totalCorrect: stats.totalCorrect,
+                        accuracy: stats.accuracy,
+                        ...(stats.achievements && { achievements: stats.achievements })
+                    };
+                    await db.collection("(default)").doc(decodedCookie.uid).set(updateData, { merge: true });
+                }
+            } catch {}
         }
     })
 }

@@ -1,0 +1,268 @@
+---
+export const prerender = false;
+
+import { ACHIEVEMENTS, type Achievement } from "../lib/achievements";
+import Button from "../components/Button.astro";
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
+import { app } from "../lib/firebase_server";
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let unlockedAchievements: string[] = [];
+let userProgress = {
+    streak: 0,
+    sessionCorrect: 0,
+    totalCorrect: 0,
+    accuracy: 0
+};
+
+if (Astro.cookies.has("__session")) {
+    const sessionCookie = Astro.cookies.get("__session")?.value;
+    
+    if (sessionCookie) {
+        try {
+            const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+            
+            const userDoc = await db.collection("(default)").doc(decodedCookie.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                
+                userProgress = {
+                    streak: userData?.currentStreak || 0,
+                    sessionCorrect: userData?.score || 0,
+                    totalCorrect: userData?.score || 0,
+                    accuracy: userData?.accuracy || 0
+                };
+
+                // Check which achievements should be unlocked based on current stats
+                const currentlyUnlocked = Object.values(ACHIEVEMENTS)
+                    .filter(achievement => achievement.condition(userProgress))
+                    .map(achievement => achievement.id);
+
+                // Update achievements in database if there are new ones
+                if (currentlyUnlocked.length > 0) {
+                    await db.collection("(default)").doc(decodedCookie.uid).set({
+                        achievements: currentlyUnlocked
+                    }, { merge: true });
+                }
+
+                unlockedAchievements = currentlyUnlocked;
+            }
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        }
+    }
+}
+---
+
+<head>
+    <title>Achievements</title>
+</head>
+
+<body>
+    <div class="achievements-page">
+        <h1>Your Progress</h1>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <h3>Current Streak</h3>
+                <p>{userProgress.streak}</p>
+            </div>
+            <div class="stat-box">
+                <h3>Total Correct</h3>
+                <p>{userProgress.totalCorrect}</p>
+            </div>
+            <div class="stat-box">
+                <h3>Accuracy</h3>
+                <p>{userProgress.accuracy.toFixed(1)}%</p>
+            </div>
+        </div>
+
+        <div class="achievements-list">
+            <h2>Achievements</h2>
+            <div class="achievements-grid">
+                {Object.values(ACHIEVEMENTS).map((achievement) => {
+                    const isUnlocked = unlockedAchievements.includes(achievement.id);
+                    return (
+                        <div class={`achievement ${isUnlocked ? 'unlocked' : 'locked'}`}>
+                            <h3>{achievement.id}</h3>
+                            <p>{achievement.description}</p>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+
+        <Button
+            id="backButton"
+            size="lg"
+            backgroundColor="#4ea7f5"
+            textColor="white"
+            borderColor="transparent"
+            href="/"
+        >
+            Back
+        </Button>
+    </div>
+</body>
+
+<style>
+    .achievements-page {
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        font-family: 'Arial', sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .stat-box {
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-box h3 {
+        margin: 0;
+        color: #34495e;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box p {
+        margin: 0.5rem 0 0;
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #4ea7f5, #3498db);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .achievements-list {
+        margin: 3rem 0;
+    }
+
+    .achievements-list h2 {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .achievement {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        opacity: 0.7;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .achievement.locked::before {
+        content: '🔒';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .achievement.unlocked {
+        background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+        opacity: 1;
+        border-left: 4px solid #4ea7f5;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(78, 167, 245, 0.2);
+    }
+
+    .achievement.unlocked::before {
+        content: '🏆';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .achievement h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .achievement p {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    #backButton {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    #backButton:hover {
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .achievements-page {
+            padding: 1rem;
+        }
+
+        .stat-box {
+            padding: 1rem;
+        }
+
+        .stat-box p {
+            font-size: 1.5rem;
+        }
+
+        .achievement {
+            padding: 1rem;
+        }
+    }
+</style>

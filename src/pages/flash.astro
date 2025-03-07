@@ -7,6 +7,7 @@ import Accuracy from "../components/Accuracy.astro";
 import ScoreBox from "../components/ScoreBox.astro";
 import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
+import { updateStats } from "../lib/achievements_client";
 
 let loggedIn = false;
 const auth = getAuth(app);
@@ -88,6 +89,7 @@ if (Astro.cookies.has("__session")) {
     import { ProblemGenerator, ProblemSet } from "../lib/ProblemGenerator";
     import { ArithmeticType } from "../lib/enums";
     import { updateScore } from "../lib/score_client";
+    import { updateStats } from "../lib/achievements_client";
 
     if (localStorage.getItem("correctCount") === null) {
       localStorage.setItem("correctCount", "0");
@@ -250,50 +252,64 @@ if (Astro.cookies.has("__session")) {
       });
     }
 
+    let currentStreak = parseInt(localStorage.getItem("currentStreak") || "0");
+
+    function updateStreak(newStreak: number) {
+      currentStreak = newStreak;
+      localStorage.setItem("currentStreak", currentStreak.toString());
+    }
+
     function checkAnswer() {
-      const submitButton = document.getElementById(
-        "submitButton",
-      ) as HTMLButtonElement;
-      const resultInput = document.getElementById(
-        "resultInput",
-      ) as HTMLInputElement;
+      const submitButton = document.getElementById("submitButton") as HTMLButtonElement;
+      const resultInput = document.getElementById("resultInput") as HTMLInputElement;
       const resultMessage = document.getElementById("resultMessage");
       const previousProblem = document.getElementById("previousProblem");
 
       if (resultInput && submitButton && resultMessage) {
-        const userInput = (resultInput as HTMLInputElement).value.trim();
+        const userInput = resultInput.value.trim();
 
-        // disallow inputting for numbers after correct
         resultInput.disabled = true;
         submitButton.disabled = true;
 
-        const currentCorrectCount = parseInt(
-          localStorage.getItem("correctCount") || "0",
-          10,
-        );
-        const currentIncorrectCount = parseInt(
-          localStorage.getItem("incorrectCount") || "0",
-          10,
-        );
+        const currentCorrectCount = parseInt(localStorage.getItem("correctCount") || "0", 10);
+        const currentIncorrectCount = parseInt(localStorage.getItem("incorrectCount") || "0", 10);
+        const totalAnswers = currentCorrectCount + currentIncorrectCount;
+        const accuracy = totalAnswers > 0 ? (currentCorrectCount / totalAnswers) * 100 : 0;
 
         if (userInput === problemSet.result.toString()) {
           updateScore(1);
+          updateStreak(currentStreak + 1);
           resultMessage.textContent = "Correct!";
           resultMessage.className = "correct";
 
-          localStorage.setItem(
-            "correctCount",
-            (currentCorrectCount + 1).toString(),
-          );
+          const score = parseInt(localStorage.getItem("score") || "0");
+          
+          const stats = {
+            streak: currentStreak + 1,
+            sessionCorrect: score,
+            totalCorrect: score,
+            accuracy: accuracy
+          };
+
+          updateStats(stats);
+          localStorage.setItem("correctCount", (currentCorrectCount + 1).toString());
         } else {
           updateScore(-1);
+          updateStreak(0);
           resultMessage.textContent = `Incorrect, the correct answer is: ${problemSet.result}`;
           resultMessage.className = "incorrect";
+          localStorage.setItem("incorrectCount", (currentIncorrectCount + 1).toString());
 
-          localStorage.setItem(
-            "incorrectCount",
-            (currentIncorrectCount + 1).toString(),
-          );
+          const score = parseInt(localStorage.getItem("score") || "0");
+          
+          const stats = {
+            streak: 0,
+            sessionCorrect: score,
+            totalCorrect: score,
+            accuracy: accuracy
+          };
+
+          updateStats(stats);
         }
 
         updateAccuracy();
