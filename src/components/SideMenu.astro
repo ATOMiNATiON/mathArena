@@ -1,5 +1,5 @@
 ---
-import { getAuth } from 'firebase-admin/auth';
+import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
 
 /* Check if the user is authenticated */
@@ -22,19 +22,18 @@ if (Astro.cookies.has("__session")) {
 ---
 
 <button id="menu-button">
-    <div></div>
+  <div></div>
 </button>
 
 <div id="side-menu">
-    <div class="menu-option email-box" id="user-email">{userEmail}</div>
-    <a href="/progress" class="menu-option progress-button">Progress</a>
-    <a href="/settings" class="menu-option account-settings">Account Settings</a>
-    <button id="logout-button" class="menu-option logout">Logout</button>
+  <div class="menu-option email-box" id="user-email">{userEmail}</div>
+  <a href="/progress" class="menu-option progress-button">Progress</a>
+  <a href="/settings" class="menu-option account-settings">Account Settings</a>
+  <button id="logout-button" class="menu-option logout">Logout</button>
 </div>
 
 <script>
-  
-  import { actions } from 'astro:actions';
+  import { actions } from "astro:actions";
   document.addEventListener("DOMContentLoaded", () => {
     const menuButton = document.getElementById("menu-button");
     const sideMenu = document.getElementById("side-menu");
@@ -65,7 +64,6 @@ if (Astro.cookies.has("__session")) {
       }
     });
 
-
     logoutButton?.addEventListener("click", async () => {
       try {
         await actions.logout({});
@@ -83,119 +81,119 @@ if (Astro.cookies.has("__session")) {
 </script>
 
 <style>
-    #menu-button {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      width: calc(100vw / 20);
-      height: calc(100vw / 20);
-      background-color: #2d87e0;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 101;
-      transition: opacity 0.3s ease;
-      border-radius: 50%;
-    }
+  #menu-button {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: calc(100vw / 20);
+    height: calc(100vw / 20);
+    background-color: #2d87e0;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 101;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+  }
 
-    #menu-button:hover {
-      background: gray;
-      transform: scale(1.1);
-    }
+  #menu-button:hover {
+    background: gray;
+    transform: scale(1.1);
+  }
 
-    #menu-button.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+  #menu-button.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
 
-    #menu-button div {
-      width: 60%;
-      height: 4px;
-      background: white;
-      position: relative;
-    }
+  #menu-button div {
+    width: 60%;
+    height: 4px;
+    background: white;
+    position: relative;
+  }
 
-    #menu-button div::before,
-    #menu-button div::after {
-      content: "";
-      position: absolute;
-      width: 100%;
-      height: 4px;
-      background: white;
-      left: 0;
-    }
+  #menu-button div::before,
+  #menu-button div::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: white;
+    left: 0;
+  }
 
-    #menu-button div::before {
-      top: -10px;
-    }
+  #menu-button div::before {
+    top: -10px;
+  }
 
-    #menu-button div::after {
-      top: 10px;
-    }
+  #menu-button div::after {
+    top: 10px;
+  }
 
-    #side-menu {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: calc(100vw / 6);
-      height: 100vh;
-      background: white;
-      box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem;
-      gap: 1rem;
-      z-index: 100;
-    }
+  #side-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: calc(100vw / 6);
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    z-index: 100;
+  }
 
-    #side-menu.open {
-      transform: translateX(0);
-    }
+  #side-menu.open {
+    transform: translateX(0);
+  }
 
-    .menu-option {
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.2s;
-    }
+  .menu-option {
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.2s;
+  }
 
-    .email-box {
-      background: #2e8bc9;
-      color: white;
-      cursor: default;
-    }
+  .email-box {
+    background: #2e8bc9;
+    color: white;
+    cursor: default;
+  }
 
-    .progress-button {
-      background: #1d99db;
-      color: white;
-    }
+  .progress-button {
+    background: #1d99db;
+    color: white;
+  }
 
-    .progress-button:hover {
-      background: #1d99db;
-    }
+  .progress-button:hover {
+    background: #1d99db;
+  }
 
-    .account-settings {
-      background: #1cb0ff;
-      color: white;
-    }
+  .account-settings {
+    background: #1cb0ff;
+    color: white;
+  }
 
-    .account-settings:hover {
-      background: #1cb0ff;
-      border: 2px solid gray;
-    }
+  .account-settings:hover {
+    background: #1cb0ff;
+    border: 2px solid gray;
+  }
 
-    .logout {
-      background: lightskyblue;
-      color: white;
-    }
+  .logout {
+    background: lightskyblue;
+    color: white;
+  }
 
-    .logout:hover {
-      background: lightskyblue;
-    }
+  .logout:hover {
+    background: lightskyblue;
+  }
 </style>

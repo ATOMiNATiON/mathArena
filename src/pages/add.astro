@@ -1,13 +1,12 @@
 ---
-import NumberInput from '../components/NumberInput.astro';
-import Button from '../components/Button.astro';
-import '../styles/styles.css';
+import NumberInput from "../components/NumberInput.astro";
+import Button from "../components/Button.astro";
+import "../styles/styles.css";
 ---
 
 <head>
   <title>Add/Sub Setup</title>
 </head>
-
 
 <body>
   <div class="form-container">
@@ -72,23 +71,29 @@ import '../styles/styles.css';
   </div>
 
   <script>
-    import { ArithmeticType } from '../lib/enums';
+    import { ArithmeticType } from "../lib/enums";
 
-    const nextBtn = document.querySelector('#nextButton');
-    const digitsInput = document.querySelector('#digitsInput') as HTMLInputElement;
-    const numbersInput = document.querySelector('#numbersInput') as HTMLInputElement;
-    const speedInput = document.querySelector('#speedInput') as HTMLInputElement;
+    const nextBtn = document.querySelector("#nextButton");
+    const digitsInput = document.querySelector(
+      "#digitsInput",
+    ) as HTMLInputElement;
+    const numbersInput = document.querySelector(
+      "#numbersInput",
+    ) as HTMLInputElement;
+    const speedInput = document.querySelector(
+      "#speedInput",
+    ) as HTMLInputElement;
 
-    document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem("selectedTheme");
-    if (savedTheme) {
-      document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("selectedTheme");
+      if (savedTheme) {
+        document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
       }
     });
 
-    nextBtn?.addEventListener('click', () => {
+    nextBtn?.addEventListener("click", () => {
       if (!digitsInput || !numbersInput || !speedInput) {
-        alert('Inputs not found in the DOM.');
+        alert("Inputs not found in the DOM.");
         return;
       }
 
@@ -111,11 +116,11 @@ import '../styles/styles.css';
       }
 
       // Build the URL to /flash with query params
-      const url = new URL('/flash', window.location.origin);
-      url.searchParams.set('digits', digitsVal);
-      url.searchParams.set('numbers', numbersVal);
-      url.searchParams.set('speed', speedVal);
-      url.searchParams.set('arithType', ArithmeticType.AddSub.toString());
+      const url = new URL("/flash", window.location.origin);
+      url.searchParams.set("digits", digitsVal);
+      url.searchParams.set("numbers", numbersVal);
+      url.searchParams.set("speed", speedVal);
+      url.searchParams.set("arithType", ArithmeticType.AddSub.toString());
 
       // Navigate
       window.location.href = url.toString();

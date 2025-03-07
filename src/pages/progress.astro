@@ -1,6 +1,6 @@
 ---
-import Button from '../components/Button.astro';
-import '../styles/styles.css';
+import Button from "../components/Button.astro";
+import "../styles/styles.css";
 import { generateTestData } from "../lib/datagen.ts";
 ---
 
@@ -19,9 +19,7 @@ import { generateTestData } from "../lib/datagen.ts";
     </div>
     <div class="calendar-grid" id="calendarDays"></div>
 
-    <div class="selected-date" id="selectedDate">
-      Selected Date: None
-    </div>
+    <div class="selected-date" id="selectedDate">Selected Date: None</div>
   </div>
 </div>
 
@@ -37,201 +35,207 @@ import { generateTestData } from "../lib/datagen.ts";
 </Button>
 
 <script>
+  import { generateTestData } from "../lib/datagen.ts";
 
-import { generateTestData } from "../lib/datagen.ts";
+  document.addEventListener("DOMContentLoaded", () => {
+    const monthYearEl = document.getElementById("monthYear");
+    const calendarDaysEl = document.getElementById("calendarDays");
+    const selectedDateEl = document.getElementById("selectedDate");
+    const prevMonthBtn = document.getElementById("prevMonth");
+    const nextMonthBtn = document.getElementById("nextMonth");
+    const pointsDisplay = document.getElementById("pointsDisplay");
+    const accuracyDisplay = document.getElementById("accuracyDisplay");
 
-document.addEventListener("DOMContentLoaded", () => {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
 
+    let today = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+    let selectedDay = today.getDate();
+    let pointsData: { [key: number]: number } = {};
+    let accuracyData: { [key: number]: number } = {};
 
-  const monthYearEl = document.getElementById("monthYear");
-  const calendarDaysEl = document.getElementById("calendarDays");
-  const selectedDateEl = document.getElementById("selectedDate");
-  const prevMonthBtn = document.getElementById("prevMonth");
-  const nextMonthBtn = document.getElementById("nextMonth");
-  const pointsDisplay = document.getElementById("pointsDisplay");
-  const accuracyDisplay = document.getElementById("accuracyDisplay");
+    const data = generateTestData(currentYear, currentMonth);
+    pointsData = data.pointsData;
+    accuracyData = data.accuracyData;
 
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-
-  let today = new Date();
-  let currentYear = today.getFullYear();
-  let currentMonth = today.getMonth();
-  let selectedDay = today.getDate();
-  let pointsData: { [key: number]: number } ={};
-  let accuracyData: { [key: number]: number } = {};
-
-  const data = generateTestData(currentYear, currentMonth);
-  pointsData = data.pointsData;
-  accuracyData = data.accuracyData;
-
-  function updateCalendar() {
-    if (monthYearEl){
-  monthYearEl.textContent = `${months[currentMonth]} -${currentYear}`;
-    }
-  if (calendarDaysEl) {
-    calendarDaysEl.innerHTML = "";
-  }
-
-  
-
-  const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayEl = document.createElement("button");
-    dayEl.classList.add("calendar-day");
-    dayEl.textContent = day.toString();
-
-    
-    dayEl.style.backgroundColor = "white";
-    dayEl.style.color = "#4ea7f5";
-    dayEl.style.borderRadius = "15px"; 
-    dayEl.style.borderColor = "black";
-
-
-    if (
-      day ===selectedDay && currentYear === today.getFullYear() &&currentMonth === today.getMonth()
-    ) {
-      dayEl.classList.add("selected");
-      dayEl.style.backgroundColor = "#4ea7f5";
-      dayEl.style.color = "white";
-      if (selectedDateEl) {
-        selectedDateEl.textContent = `Selected Date: ${months[currentMonth]} ${day}, ${currentYear}`;
-        selectedDateEl.style.backgroundColor = "#95d2f5";
-        selectedDateEl.style.color = "white";
-        selectedDateEl.style.marginTop = "20px";
-        selectedDateEl.style.borderRadius = "20px";
-        selectedDateEl.style.height = "60px";
-        selectedDateEl.style.fontSize = "30px";
-        selectedDateEl.style.display = "flex";
-        selectedDateEl.style.alignItems = "center";
-        selectedDateEl.style.justifyContent = "center";
-        selectedDateEl.style.borderColor = "black";
+    function updateCalendar() {
+      if (monthYearEl) {
+        monthYearEl.textContent = `${months[currentMonth]} -${currentYear}`;
       }
-      
-      updateStats(day);
+      if (calendarDaysEl) {
+        calendarDaysEl.innerHTML = "";
+      }
+
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement("button");
+        dayEl.classList.add("calendar-day");
+        dayEl.textContent = day.toString();
+
+        dayEl.style.backgroundColor = "white";
+        dayEl.style.color = "#4ea7f5";
+        dayEl.style.borderRadius = "15px";
+        dayEl.style.borderColor = "black";
+
+        if (
+          day === selectedDay &&
+          currentYear === today.getFullYear() &&
+          currentMonth === today.getMonth()
+        ) {
+          dayEl.classList.add("selected");
+          dayEl.style.backgroundColor = "#4ea7f5";
+          dayEl.style.color = "white";
+          if (selectedDateEl) {
+            selectedDateEl.textContent = `Selected Date: ${months[currentMonth]} ${day}, ${currentYear}`;
+            selectedDateEl.style.backgroundColor = "#95d2f5";
+            selectedDateEl.style.color = "white";
+            selectedDateEl.style.marginTop = "20px";
+            selectedDateEl.style.borderRadius = "20px";
+            selectedDateEl.style.height = "60px";
+            selectedDateEl.style.fontSize = "30px";
+            selectedDateEl.style.display = "flex";
+            selectedDateEl.style.alignItems = "center";
+            selectedDateEl.style.justifyContent = "center";
+            selectedDateEl.style.borderColor = "black";
+          }
+
+          updateStats(day);
+        }
+
+        dayEl.addEventListener("click", () => {
+          selectedDay = day;
+          document.querySelectorAll(".calendar-day").forEach((el) => {
+            const element = el as HTMLElement;
+            element.classList.remove("selected");
+            element.style.backgroundColor = "white";
+            element.style.color = "#4ea7f5";
+            element.style.borderRadius = "15px";
+            element.style.borderColor = "black";
+          });
+
+          dayEl.classList.add("selected");
+          dayEl.style.backgroundColor = "#4ea7f5";
+          dayEl.style.color = "white";
+          dayEl.style.borderRadius = "15px";
+          dayEl.style.borderColor = "black";
+          if (selectedDateEl) {
+            selectedDateEl.textContent = `Selected Date: ${months[currentMonth]} ${day}, ${currentYear}`;
+          }
+          updateStats(day);
+        });
+        if (calendarDaysEl) {
+          calendarDaysEl.appendChild(dayEl);
+        }
+      }
     }
 
-    dayEl.addEventListener("click", () => {
-      selectedDay = day;
-      document.querySelectorAll(".calendar-day").forEach((el) => {
-        const element = el as HTMLElement;
-        element.classList.remove("selected");
-        element.style.backgroundColor = "white";
-        element.style.color = "#4ea7f5";
-        element.style.borderRadius = "15px";
-        element.style.borderColor = "black";
+    function updateStats(day: number) {
+      if (pointsDisplay) {
+        pointsDisplay.textContent = `Points: ${pointsData[day]}`;
+      }
+      let currentAccuracy = accuracyData[day];
+      let previousAccuracy = accuracyData[day - 1] || currentAccuracy;
+      let accuracyChange = currentAccuracy - previousAccuracy;
+
+      let changeSymbol =
+        accuracyChange > 0 ? "⬆" : accuracyChange < 0 ? "⬇" : "-";
+      let changeColor =
+        accuracyChange > 0 ? "green" : accuracyChange < 0 ? "red" : "#4ea7f5";
+      if (accuracyDisplay) {
+        accuracyDisplay.innerHTML = `Accuracy: ${currentAccuracy}% <span id="accuracyChange" style="color: ${changeColor};">${changeSymbol} ${Math.abs(accuracyChange)} %</span> from previous day`;
+      }
+    }
+    if (prevMonthBtn) {
+      prevMonthBtn.addEventListener("click", () => {
+        currentMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        if (currentMonth === 11) currentYear--;
+        updateCalendar();
       });
-
-      dayEl.classList.add("selected");
-      dayEl.style.backgroundColor = "#4ea7f5";
-      dayEl.style.color = "white";
-      dayEl.style.borderRadius = "15px";
-      dayEl.style.borderColor = "black";
-      if (selectedDateEl) {
-        selectedDateEl.textContent =`Selected Date: ${months[currentMonth]} ${day}, ${currentYear}`;
-      }
-      updateStats(day);
-    });
-    if (calendarDaysEl){
-      calendarDaysEl.appendChild(dayEl);
     }
-  }
-}
-
-  function updateStats(day: number) {
-    if(pointsDisplay) {
-      pointsDisplay.textContent = `Points: ${pointsData[day]}`;
+    if (nextMonthBtn) {
+      nextMonthBtn.addEventListener("click", () => {
+        currentMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+        if (currentMonth === 0) currentYear++;
+        updateCalendar();
+      });
     }
-    let currentAccuracy = accuracyData[day];
-    let previousAccuracy = accuracyData[day- 1] || currentAccuracy;
-    let accuracyChange = currentAccuracy -previousAccuracy;
 
-    let changeSymbol = accuracyChange > 0 ? "⬆" : accuracyChange < 0 ? "⬇" :"-";
-    let changeColor = accuracyChange > 0 ? "green" : accuracyChange < 0 ? "red" : "#4ea7f5";
-    if (accuracyDisplay) {
-      accuracyDisplay.innerHTML = `Accuracy: ${currentAccuracy}% <span id="accuracyChange" style="color: ${changeColor};">${changeSymbol} ${Math.abs(accuracyChange)} %</span> from previous day`;
-    }
-  }
-  if (prevMonthBtn) {
-    prevMonthBtn.addEventListener("click", () => {
-      currentMonth = currentMonth === 0 ?11 : currentMonth - 1;
-      if (currentMonth === 11) currentYear--;
-      updateCalendar();
-    });
-  }
-  if (nextMonthBtn) {
-    nextMonthBtn.addEventListener("click", () => {
-      currentMonth = currentMonth === 11 ? 0 : currentMonth + 1;
-      if (currentMonth === 0) currentYear++;
-      updateCalendar();
-    });
-  }
-
-  updateCalendar();
-});
+    updateCalendar();
+  });
 </script>
 
 <style>
-.container {
-  display: flex;
-  width: 90%;
-  height: 80vh; 
-  justify-content: space-between;
-  align-items: flex-start;
-  margin: 0 auto;
-  gap: 30px;
-  margin-top: 20px;
-}
+  .container {
+    display: flex;
+    width: 90%;
+    height: 80vh;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 auto;
+    gap: 30px;
+    margin-top: 20px;
+  }
 
-.stats-box {
-  width: 40%;
-  background: #ffffff;
-  border: 2px solid #4ea7f5;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-  font-size: 18px;
-}
+  .stats-box {
+    width: 40%;
+    background: #ffffff;
+    border: 2px solid #4ea7f5;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+  }
 
-.calendar-container {
-  width: 60%;
-  text-align: center;
-  padding: 15px;
-  border: 2px solid #4ea7f5;
-  border-radius: 10px;
-  background: #f6fcfd;
-}
+  .calendar-container {
+    width: 60%;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #4ea7f5;
+    border-radius: 10px;
+    background: #f6fcfd;
+  }
 
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #4ea7f5;
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #4ea7f5;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
 
-.calendar-header button {
-  background: white;
-  color: #4ea7f5;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-}
+  .calendar-header button {
+    background: white;
+    color: #4ea7f5;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+  }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns:repeat(7, 1fr);
-  gap: 8px;
-  width: 100%;
-  height: 400px;
-}
-
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    width: 100%;
+    height: 400px;
+  }
 </style>
