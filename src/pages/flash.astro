@@ -26,8 +26,7 @@ if (Astro.cookies.has("__session")) {
 
 <body>
   <ScoreBox server:defer />
-
-  <div id="accuracy-box">Accuracy: 0%</div>
+  <Accuracy server:defer />
 
   <div class="flash-container">
     <div id="currentlyFlashing" class="currently-flashing"></div>
@@ -88,6 +87,7 @@ if (Astro.cookies.has("__session")) {
     import { ProblemGenerator, ProblemSet } from "../lib/ProblemGenerator";
     import { ArithmeticType } from "../lib/enums";
     import { updateScore } from "../lib/score_client";
+    import { updateAccuracy } from "../lib/Accuracy_client";
 
     if (localStorage.getItem("correctCount") === null) {
       localStorage.setItem("correctCount", "0");
@@ -100,8 +100,6 @@ if (Astro.cookies.has("__session")) {
     if (savedTheme) {
       document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
     }
-
-    const accuracyBox = document.getElementById("accuracy-box");
 
     const params = new URLSearchParams(window.location.search);
     const arithType = parseInt(params.get("arithType") || "0"); // Arithmetic Types: Add/Sub (0), Multiplication (1), Division (2)
@@ -129,24 +127,6 @@ if (Astro.cookies.has("__session")) {
         break;
       }
     }
-
-    function updateAccuracy() {
-      const correctCount = parseInt(
-        localStorage.getItem("correctCount") || "0",
-        10,
-      );
-      const incorrectCount = parseInt(
-        localStorage.getItem("incorrectCount") || "0",
-        10,
-      );
-      const total = correctCount + incorrectCount;
-      const accuracy = total > 0 ? (correctCount / total) * 100 : 0;
-      if (accuracyBox) {
-        accuracyBox.textContent = `Accuracy: ${accuracy.toFixed(2)}%`;
-      }
-    }
-
-    updateAccuracy();
 
     function flashNumbers(
       numbersArr: number[],
@@ -278,6 +258,7 @@ if (Astro.cookies.has("__session")) {
 
         if (userInput === problemSet.result.toString()) {
           updateScore(1);
+          updateAccuracy(1, 0);
           resultMessage.textContent = "Correct!";
           resultMessage.className = "correct";
 
@@ -287,6 +268,7 @@ if (Astro.cookies.has("__session")) {
           );
         } else {
           updateScore(-1);
+          updateAccuracy(0, 1);
           resultMessage.textContent = `Incorrect, the correct answer is: ${problemSet.result}`;
           resultMessage.className = "incorrect";
 
@@ -295,8 +277,6 @@ if (Astro.cookies.has("__session")) {
             (currentIncorrectCount + 1).toString(),
           );
         }
-
-        updateAccuracy();
 
         if (previousProblem) {
           previousProblem.addEventListener("click", () => {

@@ -1,28 +1,22 @@
 ---
-const correctCount = parseInt(localStorage.getItem('correctCount') || '0', 10);
-const incorrectCount = parseInt(localStorage.getItem('incorrectCount') || '0', 10);
-const totalAnswers = correctCount + incorrectCount;
-const accuracy = totalAnswers > 0 ? Math.round((correctCount / totalAnswers) * 100) : 0;
+import { getAuth } from "firebase-admin/auth";
+import { app } from "../lib/firebase_server.ts";
+import AccuracyClient from "./AccuracyClient.astro";
+import AccuracyServer from "./AccuracyServer.astro";
+
+let loggedIn = false;
+let session = undefined;
+const auth = getAuth(app);
+if (Astro.cookies.has("__session")) {
+  const sessionCookie = Astro.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    try {
+      const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+      session = sessionCookie;
+      loggedIn = true;
+    } catch {}
+  }
+}
 ---
 
-<div
-  id="accuracy-box"
-  style="position: absolute; 
-        top: 10px;
-        right: 10px;
-        width: 20vw;
-        height: 40px;
-        background: rgb(73, 163, 241);
-        padding: 5px;
-        border: 2px rgb(8, 107, 255);
-        font-size: 1.2rem;
-        text-align: center;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        border-radius: 5px;"
->
-        Accuracy: <span id="accuracy-text">{accuracy}%</span>
-</div>
+{ loggedIn ? <AccuracyServer session={session} /> : <AccuracyClient /> }
