@@ -7,6 +7,7 @@ import SideMenu from "../components/SideMenu.astro";
 import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
 import ScoreBox from "../components/ScoreBox.astro";
+import SignInButton from "../components/SignInButton.astro";
 
 // Check for server-side authentication
 let isAuthenticated = false;
@@ -40,18 +41,6 @@ if (Astro.cookies.has("__session")) {
         top: 10px;
         right: 10px;
       }
-      #sign-in-button {
-        background-color: #4ea7f5;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      #side-menu-container.hidden {
-        display: none;
-      }
     </style>
   </head>
   <body>
@@ -60,9 +49,7 @@ if (Astro.cookies.has("__session")) {
     <div id="auth-container">
       {
         !isAuthenticated ? (
-          <a href="/login" id="sign-in-button">
-            <button>Sign In</button>
-          </a>
+          <SignInButton/>
         ) : null
       }
 
