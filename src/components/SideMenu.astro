@@ -5,14 +5,17 @@ import { app } from "../lib/firebase_server.ts";
 /* Check if the user is authenticated */
 const auth = getAuth(app);
 let userEmail = "[Display User Email]";
+let userName = "[Full Name]";
 
 if (Astro.cookies.has("__session")) {
   const sessionCookie = Astro.cookies.get("__session")?.value;
   if (sessionCookie) {
     try {
       const decodedCookie = await auth.verifySessionCookie(sessionCookie);
-      if (decodedCookie.email) {
-        userEmail = decodedCookie.email;
+      const user = await auth.getUser(decodedCookie.uid);
+      if (user) {
+        //userEmail = decodedCookie.email;
+        userName = user.displayName || user.email || user.uid;
       }
     } catch (error) {
       console.error("Session verification failed:", error);
@@ -26,7 +29,7 @@ if (Astro.cookies.has("__session")) {
 </button>
 
 <div id="side-menu">
-    <div class="menu-option email-box" id="user-email">{userEmail}</div>
+    <div class="menu-option email-box" id="user-email">{userName}</div>
     <a href="/progress" class="menu-option progress-button">Progress</a>
     <a href="/settings" class="menu-option account-settings">Account Settings</a>
     <button id="logout-button" class="menu-option logout">Logout</button>
