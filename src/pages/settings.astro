@@ -1,10 +1,17 @@
 ---
-import NumberInput from "../components/NumberInput.astro";
+export const prerender = false;
+
 import Button from "../components/Button.astro";
 import "../styles/styles.css";
 import BackgroundTheme from "../components/BackgroundTheme.astro";
+import MathPage from "../layouts/MathPage.astro";
+
+if(!Astro.locals.decodedCookie) {
+  return new Response(null, { status: 404 });
+}
 ---
 
+<MathPage title="Settings - Math Arena">
 <div class="settings-container">
   <div class="settings-form">
     <label for="email-input">Email Address:</label>
@@ -56,11 +63,4 @@ import BackgroundTheme from "../components/BackgroundTheme.astro";
     background-color: #1d99db;
   }
 </style>
-
-<script>
-  // Load saved theme from localStorage
-  const savedTheme = localStorage.getItem("selectedTheme");
-  if (savedTheme) {
-    document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
-  }
-</script>
+</MathPage>
