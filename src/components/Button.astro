@@ -26,12 +26,8 @@ const {
 } = Astro.props;
 ---
 
-<button 
-  class:list={[
-    classes, 
-    { filled },
-    "button-base"
-  ]}
+<button
+  class:list={[classes, { filled }, "button-base"]}
   data-size={size}
   type={type}
   {...rest}
@@ -47,20 +43,20 @@ const {
 </button>
 
 <script>
-  document.querySelectorAll('.button-base').forEach(button => {
-    const href = button.getAttribute('data-href');
-    const onClickAttr = button.getAttribute('data-onclick');
+  document.querySelectorAll(".button-base").forEach((button) => {
+    const href = button.getAttribute("data-href");
+    const onClickAttr = button.getAttribute("data-onclick");
 
-    button.addEventListener('click', (event) => {
+    button.addEventListener("click", (event) => {
       if (onClickAttr) {
         try {
           new Function(onClickAttr).call(button);
         } catch (error) {
-          console.error('Error in onClick handler:', error);
+          console.error("Error in onClick handler:", error);
         }
       }
 
-      if (href && href !== '#') {
+      if (href && href !== "#") {
         window.location.href = href;
       }
     });
