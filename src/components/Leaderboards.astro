@@ -1,8 +1,8 @@
 ---
 import { getAuth } from "firebase-admin/auth";
 import { app } from "../lib/firebase_server.ts";
-import AccuracyClient from "./AccuracyClient.astro";
-import AccuracyServer from "./AccuracyServer.astro";
+import LeaderboardServer from "./ServerLeaderboard.astro";
+import LeaderboardClient from "./ClientLeaderboard.astro";
 
 let loggedIn = false;
 let session = undefined;
@@ -19,4 +19,4 @@ if (Astro.cookies.has("__session")) {
 }
 ---
 
-{ loggedIn ? <AccuracyServer session={session} /> : <AccuracyClient /> }
+{ loggedIn ? <LeaderboardServer/> : <LeaderboardClient/> }

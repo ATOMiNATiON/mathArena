@@ -59,7 +59,7 @@ body {
 }
 
 .result-input {
-  font-size: 4.5rem;
+  font-size: 4.3rem;
   padding: 0.5rem;
   width: 350px;
   margin-top: 30px;
@@ -144,7 +144,7 @@ body {
 .input-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 4rem;
   margin-bottom: 2rem;
 }
 
@@ -255,6 +255,68 @@ body {
   margin-bottom: 1.5rem;
   text-align: left;
 }
+
+/* Leaderboard Items */
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.leaderboard-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.rank {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2c3e50;
+  width: 40px;
+}
+
+.user-info {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.username {
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.score-info {
+  flex-grow: 1;
+  text-align: right;
+}
+
+.score {
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+@keyframes slideIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Stats */
 
 .stats-box h2 {
   color: #4ea7f5;

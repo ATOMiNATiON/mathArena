@@ -54,72 +54,79 @@ if (Astro.cookies.has("__session")) {
   </div>
 
   <script>
-    import {
-      getAuth,
-      inMemoryPersistence,
-      createUserWithEmailAndPassword,
-      updateProfile
-    } from "firebase/auth";
-    import { app } from "../lib/firebase_client.ts";
-    import type { AuthError } from 'firebase/auth';
-    import { actions } from 'astro:actions';
+import {
+  getAuth,
+  inMemoryPersistence,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendEmailVerification,
+  signOut
+} from "firebase/auth";
+import { app } from "../lib/firebase_client.ts";
+import type { AuthError } from "firebase/auth";
+import { actions } from "astro:actions";
 
-    const auth = getAuth(app);
-    // This will prevent the browser from storing session data
-    auth.setPersistence(inMemoryPersistence);
+const auth = getAuth(app);
+// Prevent session persistence
+auth.setPersistence(inMemoryPersistence);
 
-    const signupForm = document.getElementById("signup-form") as HTMLFormElement;
-    const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
+const signupForm = document.getElementById("signup-form") as HTMLFormElement;
+const errorMessageEl = document.getElementById("error-message") as HTMLParagraphElement;
 
-    signupForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
+signupForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-      const formData = new FormData(signupForm);
-      const name = formData.get("name")?.toString();
-      const email = formData.get("email")?.toString();
-      const password = formData.get("password")?.toString();
+  const formData = new FormData(signupForm);
+  const name = formData.get("name")?.toString();
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
 
-      if (!name || !email || !password) {
-        errorMessageEl.textContent = "Please fill in all fields";
-        return;
+  if (!name || !email || !password) {
+    errorMessageEl.textContent = "Please fill in all fields";
+    return;
+  }
+
+  try {
+    // Create user in Firebase
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Update profile with display name
+    await updateProfile(user, { displayName: name });
+
+    // Send email verification
+    await sendEmailVerification(user);
+
+    // Force logout immediately to prevent unverified login
+    await signOut(auth);
+
+    // Show message and prevent immediate login
+    alert("A verification email has been sent. Please verify your email to continue.");
+
+    // Check verification status every 3 seconds
+    const checkVerification = setInterval(async () => {
+      await user.reload(); // Refresh user data
+      if (user.emailVerified) {
+        clearInterval(checkVerification); // Stop checking
+        alert("Email verified! Redirecting to login...");
+        window.location.href = "/login"; // Redirect to login
       }
+    }, 3000); // Check every 3 seconds
 
-      try {
-        // Create user in Firebase
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Update profile with display name
-        await updateProfile(userCredential.user, {
-          displayName: name
-        });
+  } catch (error) {
+    const authError = error as AuthError;
 
-        // Get ID token for server action
-        const idToken = await userCredential.user.getIdToken();
-
-        // Call the register action with the token
-        await actions.register({
-          email,
-          password,
-          name,
-          idToken
-        });
-
-        // Redirect to login page after successful registration
-        window.location.href = "/login";
-      } catch (error) {
-        const authError = error as AuthError;
-        
-        // Handle specific Firebase Auth error codes
-        if (authError.code === "auth/email-already-exists") {
-          errorMessageEl.textContent = "An account with this email already exists.";
-        } else if (authError.code === "auth/invalid-email") {
-          errorMessageEl.textContent = "Please provide a valid email address.";
-        } else if (authError.code === "auth/weak-password") {
-          errorMessageEl.textContent = "Password should be at least 6 characters.";
-        } else {
-          errorMessageEl.textContent = authError.message || "Failed to create account. Please try again.";
-        }
-      }
-    });
+    // Handle specific Firebase Auth error codes
+    if (authError.code === "auth/email-already-exists") {
+      errorMessageEl.textContent = "An account with this email already exists.";
+    } else if (authError.code === "auth/invalid-email") {
+      errorMessageEl.textContent = "Please provide a valid email address.";
+    } else if (authError.code === "auth/weak-password") {
+      errorMessageEl.textContent = "Password should be at least 6 characters.";
+    } else {
+      errorMessageEl.textContent = authError.message || "Failed to create account. Please try again.";
+    }
+  }
+});
   </script>
 </body>

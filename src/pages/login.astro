@@ -6,7 +6,6 @@ import { getAuth } from "firebase-admin/auth";
 import {app} from "../lib/firebase_server.ts";
 import {actions} from "astro:actions";
 
-/* Check if the user is authenticated */
 const auth = getAuth(app);
 if (Astro.cookies.has("__session")) {
   const sessionCookie = Astro.cookies.get("__session")?.value;
@@ -46,6 +45,8 @@ if (Astro.cookies.has("__session")) {
  
     <p>Don't have an account? <a href="/signup">Sign Up</a></p>
     <a href="/"> Continue without an account </a>
+    <p><a href="/reset">Forgot your password? Click here to reset</a></p>
+  
   </div>
 
   <script>
@@ -67,29 +68,35 @@ if (Astro.cookies.has("__session")) {
 
     // Inside login.astro script section, modify the event listener:
     loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    const formData = new FormData(loginForm);
-    const email = formData.get("email")?.toString();
-    const password = formData.get("password")?.toString();
+  const formData = new FormData(loginForm);
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
 
-    if (!email || !password) {
-      errorMessageEl.textContent = "Please fill in all fields";
+  if (!email || !password) {
+    errorMessageEl.textContent = "Please fill in all fields";
+    return;
+  }
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    
+    // Check if email is verified
+    if (!userCredential.user.emailVerified) {
+      errorMessageEl.textContent = "Please verify your email before logging in.";
       return;
     }
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
+    const idToken = await userCredential.user.getIdToken();
+    await actions.login({ idToken });
 
-      await actions.login({ idToken });
-
-      // Redirect to the home page after successful login
-      window.location.href = "/"; // not happy about this, but works for now...
-    } catch (error) {
-      const authError = error as AuthError;
-      errorMessageEl.textContent = authError.message || "Login failed. Please try again.";
-    }
-  });
+    // Redirect to the home page after successful login
+    window.location.href = "/";
+  } catch (error) {
+    const authError = error as AuthError;
+    errorMessageEl.textContent = authError.message || "Login failed. Please try again.";
+  }
+});
   </script>
 </body>

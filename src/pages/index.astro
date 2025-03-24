@@ -93,7 +93,6 @@ if (Astro.cookies.has("__session")) {
     <ScoreBox server:defer />
 
     <script>
-      // TODO: Load "defualt Blue" if user is not signed in, otherwise load in user's saved theme
       const savedTheme = localStorage.getItem("selectedTheme");
       if (savedTheme) {
         document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;

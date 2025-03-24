@@ -26,8 +26,7 @@ if (Astro.cookies.has("__session")) {
 
 <body>
   <ScoreBox server:defer />
-
-  <div id="accuracy-box">Accuracy: 0%</div>
+  <Accuracy server:defer />
 
   <div class="flash-container">
     <div id="currentlyFlashing" class="currently-flashing"></div>
@@ -88,20 +87,19 @@ if (Astro.cookies.has("__session")) {
     import { ProblemGenerator, ProblemSet } from "../lib/ProblemGenerator";
     import { ArithmeticType } from "../lib/enums";
     import { updateScore } from "../lib/score_client";
+    import { updateAccuracy } from "../lib/accuracy_client";
 
-    if (localStorage.getItem("correctCount") === null) {
-      localStorage.setItem("correctCount", "0");
+    if (localStorage.getItem("totalCorrect") === null) {
+      localStorage.setItem("totalCorrect", "0");
     }
-    if (localStorage.getItem("incorrectCount") === null) {
-      localStorage.setItem("incorrectCount", "0");
+    if (localStorage.getItem("totalIncorrect") === null) {
+      localStorage.setItem("totalIncorrect", "0");
     }
 
     const savedTheme = localStorage.getItem("selectedTheme");
     if (savedTheme) {
       document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
     }
-
-    const accuracyBox = document.getElementById("accuracy-box");
 
     const params = new URLSearchParams(window.location.search);
     const arithType = parseInt(params.get("arithType") || "0"); // Arithmetic Types: Add/Sub (0), Multiplication (1), Division (2)
@@ -129,24 +127,6 @@ if (Astro.cookies.has("__session")) {
         break;
       }
     }
-
-    function updateAccuracy() {
-      const correctCount = parseInt(
-        localStorage.getItem("correctCount") || "0",
-        10,
-      );
-      const incorrectCount = parseInt(
-        localStorage.getItem("incorrectCount") || "0",
-        10,
-      );
-      const total = correctCount + incorrectCount;
-      const accuracy = total > 0 ? (correctCount / total) * 100 : 0;
-      if (accuracyBox) {
-        accuracyBox.textContent = `Accuracy: ${accuracy.toFixed(2)}%`;
-      }
-    }
-
-    updateAccuracy();
 
     function flashNumbers(
       numbersArr: number[],
@@ -250,53 +230,43 @@ if (Astro.cookies.has("__session")) {
       });
     }
 
+    let currentStreak = parseInt(localStorage.getItem("currentStreak") || "0");
+
+    function updateStreak(newStreak: number) {
+      currentStreak = newStreak + 1;
+      localStorage.setItem("currentStreak", currentStreak.toString());
+    }
+
     function checkAnswer() {
-      const submitButton = document.getElementById(
-        "submitButton",
-      ) as HTMLButtonElement;
-      const resultInput = document.getElementById(
-        "resultInput",
-      ) as HTMLInputElement;
+      const submitButton = document.getElementById("submitButton") as HTMLButtonElement;
+      const resultInput = document.getElementById("resultInput") as HTMLInputElement;
       const resultMessage = document.getElementById("resultMessage");
       const previousProblem = document.getElementById("previousProblem");
 
       if (resultInput && submitButton && resultMessage) {
-        const userInput = (resultInput as HTMLInputElement).value.trim();
+        const userInput = resultInput.value.trim();
 
-        // disallow inputting for numbers after correct
         resultInput.disabled = true;
         submitButton.disabled = true;
 
-        const currentCorrectCount = parseInt(
-          localStorage.getItem("correctCount") || "0",
-          10,
-        );
-        const currentIncorrectCount = parseInt(
-          localStorage.getItem("incorrectCount") || "0",
-          10,
-        );
+        const currentCorrectCount = parseInt(localStorage.getItem("totalCorrect") || "0", 10);
+        const currentIncorrectCount = parseInt(localStorage.getItem("totalIncorrect") || "0", 10);
+        const totalAnswers = currentCorrectCount + currentIncorrectCount;
+        const accuracy = totalAnswers > 0 ? (currentCorrectCount / totalAnswers) * 100 : 0;
 
         if (userInput === problemSet.result.toString()) {
           updateScore(1);
+          updateAccuracy(1, 0);
+          
           resultMessage.textContent = "Correct!";
           resultMessage.className = "correct";
 
-          localStorage.setItem(
-            "correctCount",
-            (currentCorrectCount + 1).toString(),
-          );
         } else {
           updateScore(-1);
+          updateAccuracy(0, 1);
           resultMessage.textContent = `Incorrect, the correct answer is: ${problemSet.result}`;
           resultMessage.className = "incorrect";
-
-          localStorage.setItem(
-            "incorrectCount",
-            (currentIncorrectCount + 1).toString(),
-          );
         }
-
-        updateAccuracy();
 
         if (previousProblem) {
           previousProblem.addEventListener("click", () => {

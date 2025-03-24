@@ -1,0 +1,112 @@
+---
+import '../styles/styles.css';
+import { getAuth } from "firebase-admin/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { app } from "../lib/firebase_server.ts";
+import { actions } from "astro:actions";
+import Button from '../components/Button.astro';
+import BackgroundTheme from '../components/BackgroundTheme.astro';
+---
+
+<div class="settings-container">
+  <div class="settings-form">
+    <label for="email-input">Email Address:</label>
+    <input type="email" id="email-input" placeholder="Enter your email" />
+    <button class="submit-button" id="reset-password-button">Reset Password</button>
+    <p id="reset-message" class="hidden"></p>
+  </div>
+
+</div>
+
+<Button
+  id="backButton"
+  size="lg"
+  backgroundColor="#4ea7f5"
+  textColor="white"
+  borderColor="transparent"
+  href="/login"
+>
+  Back
+</Button>
+
+<style>
+    .settings-container {
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+  
+    .settings-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    #email-input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.2rem;
+    }
+  
+    .submit-button {
+      background-color: skyblue;
+      color: white;
+      padding: 1rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1.2rem;
+    }
+  
+    .submit-button:hover {
+      background-color: #1d99db;
+    }
+  
+    .hidden {
+      display: none;
+    }
+    .success {
+      color: rgb(107, 172, 230);
+    }
+  
+    .error {
+      color: black;
+    }
+  </style>
+<script>
+  import '../styles/styles.css';
+  import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+  import { app } from "../lib/firebase_client.ts";
+  import { actions } from "astro:actions";
+
+  const auth = getAuth(app); 
+
+  const resetButton = document.getElementById("reset-password-button")!;
+
+  
+    resetButton.addEventListener("click", async () => {
+      const email = (document.getElementById("email-input") as HTMLInputElement).value;
+      const resetMessage = document.getElementById("reset-message")!;
+
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+       
+          resetMessage.textContent = "Reset email has been sent, please check your inbox.";
+          resetMessage.className = "success";
+          resetMessage.classList.remove("hidden");
+        
+      } catch (error) {
+        console.error("Error during password reset: ", error);
+        
+         resetMessage.textContent = "Unable to send reset email.";
+        resetMessage.className = "error";
+        resetMessage.classList.remove("hidden");
+      
+      }
+    });
+  
+</script>

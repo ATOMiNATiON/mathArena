@@ -1,0 +1,35 @@
+---
+import Button from '../components/Button.astro';
+import '../styles/styles.css';
+import Leaderboards from '../components/Leaderboards.astro';
+
+---
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Math Arena</title>
+</head>
+
+<Button
+ id="backButton"
+ size="lg"
+ backgroundColor="#4ea7f5"
+ textColor="white"
+ borderColor="transparent"
+ href="/"
+>
+ Back
+</Button>
+
+<Leaderboards server:defer/>
+
+<script>
+
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+        document.body.style.backgroundImage = `url('/background.svg?color=${savedTheme.slice(1)}')`;
+    }
+
+</script>

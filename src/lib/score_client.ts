@@ -1,7 +1,5 @@
-import type { User } from "firebase/auth";
-import { getAuth } from "firebase/auth";
-import { app } from "./firebase_client.ts";
 import { actions } from "astro:actions";
+import { UserStats } from "./achievements.ts"
 
 export async function getScore(): Promise<number> {
   const scoreBox = document.getElementById("score-box")!;
@@ -18,14 +16,14 @@ export function getScoreLocalStorage(): number {
   return parseInt(localStorage.getItem("userScore") || "0", 10);
 }
 
-
-export async function updateScore(change: number) {
+export async function updateScore(change: -1 | 1) {
   const scoreBox = document.getElementById("score-box")!;
   if(scoreBox.classList.contains("server")) return await updateScoreFirebase(change);
   else if(scoreBox.classList.contains("client")) return updateScoreLocalStorage(change);
   else throw new Error("Score not loaded?");
 }
-function updateScoreText(change: number): number {
+
+function updateScoreText(change: -1 | 1): number {
   const scoreText = document.getElementById("score-text")!;
   
   const currentScore = Number(scoreText.innerText)
@@ -36,13 +34,29 @@ function updateScoreText(change: number): number {
   return newScore;
 }
 
-export async function updateScoreFirebase(change: number): Promise<void> {
-  const newScore = updateScoreText(change);
-  await actions.updateScore(newScore)
+export async function updateScoreFirebase(change: -1 | 1): Promise<void> {
+  updateScoreText(change);
+  let newData: Partial<UserStats>;
+  switch(change) {
+    case -1:
+      newData = (await actions.incrementIncorrect()).data!;
+      break;
+    case 1:
+      newData = (await actions.incrementCorrect()).data!;
+      break;
+  }
+
+  let stat: keyof UserStats;
+
+  for (stat in newData) {
+    // key: stat, val: newData[stat]
+    if (newData[stat]) {
+      localStorage.setItem(stat, newData[stat]!.toString());
+    }
+  }
 }
 
-
-export function updateScoreLocalStorage(change: number): void {
+export function updateScoreLocalStorage(change: -1 | 1): void {
   const newScore = updateScoreText(change);
   localStorage.setItem("userScore", newScore.toString());
 }
