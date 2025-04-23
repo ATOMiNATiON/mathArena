@@ -12,7 +12,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/node": "^9.2.0",
     "@astrojs/ts-plugin": "^1.10.4",
-    "astro": "^5.7.3",
+    "astro": "^5.7.5",
     "firebase": "^11.6.0",
     "firebase-admin": "^13.2.0",
     "typescript": "^5.8.3"
