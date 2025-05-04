@@ -14,7 +14,7 @@
     "@astrojs/ts-plugin": "^1.10.4",
     "astro": "^5.7.10",
     "firebase": "^11.6.1",
-    "firebase-admin": "^13.2.0",
+    "firebase-admin": "^13.3.0",
     "typescript": "^5.8.3"
   },
   "pnpm": {
